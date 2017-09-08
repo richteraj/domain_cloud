@@ -91,6 +91,23 @@ line_comments_terminated_by_eof_are_stripped (void)
 }
 
 char *
+line_comments_continue_with_excaped_newline (void)
+{
+  char input[] = "line 1 //comm 1.1\\\ncomm 1.2\nline 2";
+  size_t input_len = sizeof (input) - 1;
+  const char expected_output[] = "line 1 line 2";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
 block_comments_terminated_by_eof_are_stripped (void)
 {
   char input[] = "line 1 /*block-comment... line 1.2\nl 2 //\n* / * /\n//";
@@ -265,11 +282,32 @@ comments_are_ignored_inside_quoted_strings (void)
   return NULL;
 }
 
+char *
+An_even_number_of_preceding_escapes_does_not_escape_the_delimiter (void)
+{
+  char input[] = "even: \"2:\\\\\"text1\"text2\"\n"
+                 "odd:  \'3:\\\\\\\'text3\'text4\'\n\'\n"
+                 "even: //4:\\\\\\\\\nline 2\n"
+                 "odd:  //4:\\\\\\\\\\\nline 3\nline 4";
+  size_t input_len = sizeof (input) - 1;
+  const char *expected_output = "even: text1\nodd:  text4\neven: line 2\nodd:  line 4";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
 void
 all_tests (void)
 {
   CMT_TEST_CASE (line_comments_including_newline_are_stripped)
   CMT_TEST_CASE (line_comments_terminated_by_eof_are_stripped)
+  CMT_TEST_CASE (line_comments_continue_with_excaped_newline)
   CMT_TEST_CASE (inline_block_comments_are_stripped)
   CMT_TEST_CASE (block_comments_terminated_by_eof_are_stripped)
   CMT_TEST_CASE (block_comments_are_not_nested)
@@ -281,6 +319,7 @@ all_tests (void)
   CMT_TEST_CASE (quoted_strings_are_terminated_by_eof)
 
   CMT_TEST_CASE (comments_are_ignored_inside_quoted_strings)
+  CMT_TEST_CASE (An_even_number_of_preceding_escapes_does_not_escape_the_delimiter)
 }
 
 CMT_RUN_TESTS (all_tests)

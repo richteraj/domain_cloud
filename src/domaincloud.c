@@ -117,15 +117,6 @@ print_usage (FILE *ostr)
 }
 
 void
-skip_line_comment (FILE *istr)
-{
-  int cur;
-  while ((cur = getc (istr)) != EOF)
-    if (cur == '\n')
-      break;
-}
-
-void
 skip_block_comments (FILE *istr)
 {
   int cur = getc (istr);
@@ -171,7 +162,7 @@ remove_clutter (FILE *istr, FILE *ostr)
         {
           if (next == '/')
             {
-              skip_line_comment (istr);
+              skip_delimiter_escape_aware ('\n', istr);
               reset_state = true;
             }
           else if (next == '*')
@@ -180,9 +171,7 @@ remove_clutter (FILE *istr, FILE *ostr)
               reset_state = true;
             }
           else
-            {
               putc (cur, ostr);
-            }
         }
       else if (cur == '"' || cur == '\'')
         {
@@ -190,11 +179,11 @@ remove_clutter (FILE *istr, FILE *ostr)
           reset_state = true;
         }
       else if (cur != EOF)
-        putc (cur, ostr);
+          putc (cur, ostr);
     }
 
   if (ferror (istr) || ferror (ostr))
-    return errno;
+      return errno;
   else
     {
       fflush (ostr);
