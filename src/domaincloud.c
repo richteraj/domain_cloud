@@ -125,6 +125,18 @@ skip_line_comment (FILE *istr)
       break;
 }
 
+void
+skip_block_comments (FILE *istr)
+{
+  int cur = getc (istr);
+  int next;
+  while ((next = getc (istr)) != EOF)
+    {
+      if (cur == '*' && next == '/')
+        break;
+      cur = next;
+    }
+}
 
 int
 remove_clutter (FILE *istr, FILE *ostr)
@@ -144,6 +156,11 @@ remove_clutter (FILE *istr, FILE *ostr)
           if (next == '/')
             {
               skip_line_comment (istr);
+              reset_state = true;
+            }
+          else if (next == '*')
+            {
+              skip_block_comments (istr);
               reset_state = true;
             }
           else

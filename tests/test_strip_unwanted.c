@@ -90,11 +90,83 @@ line_comments_terminated_by_eof_are_stripped (void)
   return NULL;
 }
 
+char *
+block_comments_terminated_by_eof_are_stripped (void)
+{
+  char input[] = "line 1 /*block-comment... line 1.2\nl 2 //\n* / * /\n//";
+  size_t input_len = sizeof (input) - 1;
+  const char expected_output[] = "line 1 ";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
+block_comments_are_not_nested (void)
+{
+  char input[] = "line 1 /*bc1 /*bc2 */ bc3 */";
+  size_t input_len = sizeof (input) - 1;
+  const char expected_output[] = "line 1  bc3 */";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
+inline_block_comments_are_stripped (void)
+{
+  char input[] = "line 1 /*block-comment... line 1.2\nl *//";
+  size_t input_len = sizeof (input) - 1;
+  const char expected_output[] = "line 1 /";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
+line_comments_supersede_block_comments (void)
+{
+  char input[] = "line 1 // comm0 /*bc1 \nbc3 */";
+  size_t input_len = sizeof (input) - 1;
+  const char expected_output[] = "line 1 bc3 */";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
 void
 all_tests (void)
 {
   CMT_TEST_CASE (line_comments_including_newline_are_stripped)
   CMT_TEST_CASE (line_comments_terminated_by_eof_are_stripped)
+  CMT_TEST_CASE (inline_block_comments_are_stripped)
+  CMT_TEST_CASE (block_comments_terminated_by_eof_are_stripped)
+  CMT_TEST_CASE (block_comments_are_not_nested)
+  CMT_TEST_CASE (line_comments_supersede_block_comments)
 }
 
 CMT_RUN_TESTS (all_tests)
