@@ -18,6 +18,7 @@
 */
 
 
+#include <errno.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -114,3 +115,52 @@ print_usage (FILE *ostr)
 "  -h, --help          display this help and exit\n"
 "  -V, --version       output version information and exit\n");
 }
+
+void
+skip_line_comment (FILE *istr)
+{
+  int cur;
+  while ((cur = getc (istr)) != EOF)
+    if (cur == '\n')
+      break;
+}
+
+
+int
+remove_clutter (FILE *istr, FILE *ostr)
+{
+
+  int next;
+  bool reset_state = true;
+
+  while (!feof (istr) && !ferror (ostr))
+    {
+      int cur = reset_state ? getc (istr) : next;
+      reset_state = false;
+      next = getc (istr);
+
+      if (cur == '/')
+        {
+          if (next == '/')
+            {
+              skip_line_comment (istr);
+              reset_state = true;
+            }
+          else
+            {
+              putc (cur, ostr);
+            }
+        }
+      else if (cur != EOF)
+        putc (cur, ostr);
+    }
+
+  if (ferror (istr) || ferror (ostr))
+    return errno;
+  else
+    {
+      fflush (ostr);
+      return 0;
+    }
+}
+

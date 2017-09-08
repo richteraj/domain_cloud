@@ -16,8 +16,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <assert.h>
+#include <string.h>
 
 #include "domaincloud.h"
 #include "cminitests.h"
@@ -36,16 +35,51 @@ cmt_tear_down (void)
 }
 
 char *
+test_remove_clutter (char *input, size_t input_len, const char *expected_output)
+{
+  FILE *is = fmemopen (input, input_len, "r");
+  char *output = NULL;
+  size_t output_len = 0;
+  FILE *os = open_memstream (&output, &output_len);
+
+  int res = remove_clutter (is, os);
+
+  fclose (os);
+  fclose (is);
+
+  require (res == 0);
+  require_streq (expected_output, output);
+
+  free (output);
+
+  return NULL;
+}
+
+char *
 line_comments_including_newline_are_stripped (void)
 {
-  require (0 > 1, "TODO Fill in the integration tests for domaincloud.");
-  return NULL;
+  char input[] = "line 1 //line 1.2\nline 2 //abc\n//3\nx / / y == z\n/";
+  size_t input_len = sizeof (input) - 1;
+  const char expected_output[] = "line 1 line 2 x / / y == z\n/";
+
+  return test_remove_clutter (input, input_len, expected_output);
+}
+
+char *
+line_comments_terminated_by_eof_are_stripped (void)
+{
+  char input[] = "line 1 //line 1.2\nline 2 //abc\n//3\nx / / y == z\n//";
+  size_t input_len = sizeof (input) - 1;
+  const char expected_output[] = "line 1 line 2 x / / y == z\n";
+
+  return test_remove_clutter (input, input_len, expected_output);
 }
 
 void
 all_tests (void)
 {
   CMT_TEST_CASE (line_comments_including_newline_are_stripped)
+  CMT_TEST_CASE (line_comments_terminated_by_eof_are_stripped)
 }
 
 CMT_RUN_TESTS (all_tests)

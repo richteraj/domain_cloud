@@ -29,4 +29,6 @@
 void print_version (FILE *ostr);
 void print_usage (FILE *ostr);
 
+int remove_clutter (FILE *istr, FILE *ostr);
+
 #endif /* not DOMAINCLOUD_H_ */
