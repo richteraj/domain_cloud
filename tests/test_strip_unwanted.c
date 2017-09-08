@@ -34,8 +34,14 @@ cmt_tear_down (void)
   /* TODO Tear-down for every test case. */
 }
 
-char *
-test_remove_clutter (char *input, size_t input_len, const char *expected_output)
+typedef struct test_remove_clutter_res
+{
+  int res;
+  char *output;
+} rm_clutter_res;
+
+rm_clutter_res
+test_remove_clutter (char *input, size_t input_len)
 {
   FILE *is = fmemopen (input, input_len, "r");
   char *output = NULL;
@@ -47,12 +53,7 @@ test_remove_clutter (char *input, size_t input_len, const char *expected_output)
   fclose (os);
   fclose (is);
 
-  require (res == 0);
-  require_streq (expected_output, output);
-
-  free (output);
-
-  return NULL;
+  return (rm_clutter_res) {res, output};
 }
 
 char *
@@ -62,7 +63,14 @@ line_comments_including_newline_are_stripped (void)
   size_t input_len = sizeof (input) - 1;
   const char expected_output[] = "line 1 line 2 x / / y == z\n/";
 
-  return test_remove_clutter (input, input_len, expected_output);
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
 }
 
 char *
@@ -72,7 +80,14 @@ line_comments_terminated_by_eof_are_stripped (void)
   size_t input_len = sizeof (input) - 1;
   const char expected_output[] = "line 1 line 2 x / / y == z\n";
 
-  return test_remove_clutter (input, input_len, expected_output);
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
 }
 
 void
