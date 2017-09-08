@@ -1,0 +1,4 @@
+# CMake build and output dirs
+/build*/
+/bin/
+/lib/

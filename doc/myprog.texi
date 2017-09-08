@@ -1,0 +1,104 @@
+\input texinfo
+@c %**start of header
+@setfilename myprog.info
+@settitle My Program
+@documentencoding UTF-8
+@allowcodebreaks false
+
+@c %**end of header
+
+@include version.texi
+@include constants.texi
+
+@c Define new indices.
+@defcodeindex op
+@defcodeindex fl
+
+@c Put everything in one index (arbitrarily chosen to be the concept index).
+@syncodeindex fl cp
+@syncodeindex fn cp
+@syncodeindex ky cp
+@syncodeindex op cp
+@syncodeindex pg cp
+@syncodeindex vr cp
+
+@dircategory Basics
+@direntry
+@end direntry
+
+
+@copying
+This manual documents version @value{VERSION} of myprog.
+
+Copyright @copyright{} 2017 A. Johannes RICHTER
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
+@end quotation
+@end copying
+
+@titlepage
+@title @code{myprog}
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author A. Johannes RICHTER
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+@shortcontents
+@contents
+
+@ifnottex
+@node Top
+@top GNU Coreutils
+
+@insertcopying
+@end ifnottex
+
+@cindex core utilities
+@cindex text utilities
+@cindex shell utilities
+@cindex file utilities
+
+@menu
+* Introduction::                 Caveats, overview, and authors
+* Invokation::                   Invoking @code{myprog}
+ --- TODO ---
+* GNU Free Documentation License:: Copying and sharing this manual
+* Concept index::                General index
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+
+@end detailmenu
+@end menu
+
+
+@node Introduction
+@chapter Introduction
+
+@cindex TODO
+This manual is a work in progress.
+
+@node Invokation
+@chapter Invoking @code{myprog}
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl.texi
+
+@node Concept index
+@unnumbered Index
+
+@printindex cp
+
+@bye
+
