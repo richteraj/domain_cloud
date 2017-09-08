@@ -57,7 +57,7 @@ test_remove_clutter (char *input, size_t input_len)
 }
 
 char *
-line_comments_including_newline_are_stripped (void)
+Line_comments_including_newline_are_stripped (void)
 {
   char input[] = "line 1 //line 1.2\nline 2 //abc\n//3\nx / / y == z\n/";
   size_t input_len = sizeof (input) - 1;
@@ -74,7 +74,7 @@ line_comments_including_newline_are_stripped (void)
 }
 
 char *
-line_comments_terminated_by_eof_are_stripped (void)
+Line_comments_terminated_by_eof_are_stripped (void)
 {
   char input[] = "line 1 //line 1.2\nline 2 //abc\n//3\nx / / y == z\n//";
   size_t input_len = sizeof (input) - 1;
@@ -91,7 +91,7 @@ line_comments_terminated_by_eof_are_stripped (void)
 }
 
 char *
-line_comments_continue_with_excaped_newline (void)
+Line_comments_continue_with_excaped_newline (void)
 {
   char input[] = "line 1 //comm 1.1\\\ncomm 1.2\nline 2";
   size_t input_len = sizeof (input) - 1;
@@ -108,7 +108,7 @@ line_comments_continue_with_excaped_newline (void)
 }
 
 char *
-block_comments_terminated_by_eof_are_stripped (void)
+Block_comments_terminated_by_eof_are_stripped (void)
 {
   char input[] = "line 1 /*block-comment... line 1.2\nl 2 //\n* / * /\n//";
   size_t input_len = sizeof (input) - 1;
@@ -125,7 +125,7 @@ block_comments_terminated_by_eof_are_stripped (void)
 }
 
 char *
-block_comments_are_not_nested (void)
+Block_comments_are_not_nested (void)
 {
   char input[] = "line 1 /*bc1 /*bc2 */ bc3 */";
   size_t input_len = sizeof (input) - 1;
@@ -142,7 +142,7 @@ block_comments_are_not_nested (void)
 }
 
 char *
-inline_block_comments_are_stripped (void)
+Inline_block_comments_are_stripped (void)
 {
   char input[] = "line 1 /*block-comment... line 1.2\nl *//";
   size_t input_len = sizeof (input) - 1;
@@ -159,7 +159,7 @@ inline_block_comments_are_stripped (void)
 }
 
 char *
-line_comments_supersede_block_comments (void)
+Line_comments_supersede_block_comments (void)
 {
   char input[] = "line 1 // comm0 /*bc1 \nbc3 */";
   size_t input_len = sizeof (input) - 1;
@@ -176,7 +176,7 @@ line_comments_supersede_block_comments (void)
 }
 
 char *
-quoted_strings_are_removed (void)
+Quoted_strings_are_removed (void)
 {
   char input[] = "char *res = \"ABC\"; \'EFG\';";
   size_t input_len = sizeof (input) - 1;
@@ -193,7 +193,7 @@ quoted_strings_are_removed (void)
 }
 
 char *
-quoted_strings_with_escaped_quotes_are_removed (void)
+Quoted_strings_with_escaped_quotes_are_removed (void)
 {
   char input[] = "char *res = \"AB\\\"C\"; \'AB\\\'C\';";
   size_t input_len = sizeof (input) - 1;
@@ -210,7 +210,7 @@ quoted_strings_with_escaped_quotes_are_removed (void)
 }
 
 char *
-quoted_strings_are_not_terminated_by_newline (void)
+Quoted_strings_are_not_terminated_by_newline (void)
 {
   char input[] = "char *res = \"AB\\\"C\nD\" - 'AB\\\'C\nD';";
   size_t input_len = sizeof (input) - 1;
@@ -227,7 +227,7 @@ quoted_strings_are_not_terminated_by_newline (void)
 }
 
 char *
-quoted_strings_are_terminated_by_eof (void)
+Quoted_strings_are_terminated_by_eof (void)
 {
   char input[] = "char *res = \"AB\\\"C\n ...";
   size_t input_len = sizeof (input) - 1;
@@ -255,7 +255,7 @@ quoted_strings_are_terminated_by_eof (void)
 }
 
 char *
-comments_are_ignored_inside_quoted_strings (void)
+Comments_are_ignored_inside_quoted_strings (void)
 {
   char input[] = "char *res = \"AB //...\"; \'CD //...\'";
   size_t input_len = sizeof (input) - 1;
@@ -305,20 +305,20 @@ An_even_number_of_preceding_escapes_does_not_escape_the_delimiter (void)
 void
 all_tests (void)
 {
-  CMT_TEST_CASE (line_comments_including_newline_are_stripped)
-  CMT_TEST_CASE (line_comments_terminated_by_eof_are_stripped)
-  CMT_TEST_CASE (line_comments_continue_with_excaped_newline)
-  CMT_TEST_CASE (inline_block_comments_are_stripped)
-  CMT_TEST_CASE (block_comments_terminated_by_eof_are_stripped)
-  CMT_TEST_CASE (block_comments_are_not_nested)
-  CMT_TEST_CASE (line_comments_supersede_block_comments)
+  CMT_TEST_CASE (Line_comments_including_newline_are_stripped)
+  CMT_TEST_CASE (Line_comments_terminated_by_eof_are_stripped)
+  CMT_TEST_CASE (Line_comments_continue_with_excaped_newline)
+  CMT_TEST_CASE (Inline_block_comments_are_stripped)
+  CMT_TEST_CASE (Block_comments_terminated_by_eof_are_stripped)
+  CMT_TEST_CASE (Block_comments_are_not_nested)
+  CMT_TEST_CASE (Line_comments_supersede_block_comments)
 
-  CMT_TEST_CASE (quoted_strings_are_removed)
-  CMT_TEST_CASE (quoted_strings_with_escaped_quotes_are_removed)
-  CMT_TEST_CASE (quoted_strings_are_not_terminated_by_newline)
-  CMT_TEST_CASE (quoted_strings_are_terminated_by_eof)
+  CMT_TEST_CASE (Quoted_strings_are_removed)
+  CMT_TEST_CASE (Quoted_strings_with_escaped_quotes_are_removed)
+  CMT_TEST_CASE (Quoted_strings_are_not_terminated_by_newline)
+  CMT_TEST_CASE (Quoted_strings_are_terminated_by_eof)
 
-  CMT_TEST_CASE (comments_are_ignored_inside_quoted_strings)
+  CMT_TEST_CASE (Comments_are_ignored_inside_quoted_strings)
   CMT_TEST_CASE (An_even_number_of_preceding_escapes_does_not_escape_the_delimiter)
 }
 
