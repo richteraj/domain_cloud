@@ -171,12 +171,16 @@ remove_clutter (FILE *istr, FILE *ostr)
               reset_state = true;
             }
           else
-              putc (cur, ostr);
+              putc ('/', ostr);
         }
       else if (cur == '"' || cur == '\'')
         {
-          skip_delimiter_escape_aware (cur, istr);
-          reset_state = true;
+          if (next != EOF)
+            {
+              ungetc (next, istr);
+              skip_delimiter_escape_aware (cur, istr);
+              reset_state = true;
+            }
         }
       else if (cur != EOF)
           putc (cur, ostr);

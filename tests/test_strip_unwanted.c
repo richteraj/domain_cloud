@@ -285,10 +285,10 @@ comments_are_ignored_inside_quoted_strings (void)
 char *
 An_even_number_of_preceding_escapes_does_not_escape_the_delimiter (void)
 {
-  char input[] = "even: \"2:\\\\\"text1\"text2\"\n"
-                 "odd:  \'3:\\\\\\\'text3\'text4\'\n\'\n"
-                 "even: //4:\\\\\\\\\nline 2\n"
-                 "odd:  //4:\\\\\\\\\\\nline 3\nline 4";
+  char input[] = "even: '2:'\"\\\\\"text1\"text2\"\n"
+                 "odd:  '3:'\'\\\\\\\'text3\'text4\'\n\'\n"
+                 "even: '4:'//\\\\\\\\\nline 2\n"
+                 "odd:  '5:'//\\\\\\\\\\\nline 3\nline 4";
   size_t input_len = sizeof (input) - 1;
   const char *expected_output = "even: text1\nodd:  text4\neven: line 2\nodd:  line 4";
 
