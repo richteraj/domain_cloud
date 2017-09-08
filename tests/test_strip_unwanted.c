@@ -161,9 +161,9 @@ line_comments_supersede_block_comments (void)
 char *
 quoted_strings_are_removed (void)
 {
-  char input[] = "char *res = \"ABC\";";
+  char input[] = "char *res = \"ABC\"; \'EFG\';";
   size_t input_len = sizeof (input) - 1;
-  const char *expected_output = "char *res = ;";
+  const char *expected_output = "char *res = ; ;";
 
   rm_clutter_res res = test_remove_clutter (input, input_len);
 
@@ -178,9 +178,9 @@ quoted_strings_are_removed (void)
 char *
 quoted_strings_with_escaped_quotes_are_removed (void)
 {
-  char input[] = "char *res = \"AB\\\"C\";";
+  char input[] = "char *res = \"AB\\\"C\"; \'AB\\\'C\';";
   size_t input_len = sizeof (input) - 1;
-  const char *expected_output = "char *res = ;";
+  const char *expected_output = "char *res = ; ;";
 
   rm_clutter_res res = test_remove_clutter (input, input_len);
 
@@ -195,9 +195,9 @@ quoted_strings_with_escaped_quotes_are_removed (void)
 char *
 quoted_strings_are_not_terminated_by_newline (void)
 {
-  char input[] = "char *res = \"AB\\\"C\n\";";
+  char input[] = "char *res = \"AB\\\"C\nD\" - 'AB\\\'C\nD';";
   size_t input_len = sizeof (input) - 1;
-  const char *expected_output = "char *res = ;";
+  const char *expected_output = "char *res =  - ;";
 
   rm_clutter_res res = test_remove_clutter (input, input_len);
 
@@ -223,15 +223,26 @@ quoted_strings_are_terminated_by_eof (void)
 
   free (res.output);
 
+  char input2[] = "char *res = \'AB\\\'C\n ...";
+  input_len = sizeof (input2) - 1;
+  expected_output = "char *res = ";
+
+  res = test_remove_clutter (input2, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
   return NULL;
 }
 
 char *
 comments_are_ignored_inside_quoted_strings (void)
 {
-  char input[] = "char *res = \"AB //...\";";
+  char input[] = "char *res = \"AB //...\"; \'CD //...\'";
   size_t input_len = sizeof (input) - 1;
-  const char *expected_output = "char *res = ;";
+  const char *expected_output = "char *res = ; ";
 
   rm_clutter_res res = test_remove_clutter (input, input_len);
 
@@ -240,9 +251,9 @@ comments_are_ignored_inside_quoted_strings (void)
 
   free (res.output);
 
-  char input2[] = "char *res = \"AB /*...\";";
+  char input2[] = "char *res = \"AB /*...\"; \'CD //...\'";
   input_len = sizeof (input2) - 1;
-  expected_output = "char *res = ;";
+  expected_output = "char *res = ; ";
 
   res = test_remove_clutter (input2, input_len);
 

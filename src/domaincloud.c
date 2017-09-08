@@ -139,7 +139,7 @@ skip_block_comments (FILE *istr)
 }
 
 void
-skip_strings (FILE *istr)
+skip_delimiter_escape_aware (int delim, FILE *istr)
 {
   int cur;
   bool ignore_next = false;
@@ -149,7 +149,7 @@ skip_strings (FILE *istr)
         ignore_next = false;
       else if (cur == '\\')
         ignore_next = true;
-      else if (cur == '"')
+      else if (cur == delim)
         break;
     }
 }
@@ -184,9 +184,9 @@ remove_clutter (FILE *istr, FILE *ostr)
               putc (cur, ostr);
             }
         }
-      else if (cur == '"')
+      else if (cur == '"' || cur == '\'')
         {
-          skip_strings (istr);
+          skip_delimiter_escape_aware (cur, istr);
           reset_state = true;
         }
       else if (cur != EOF)
