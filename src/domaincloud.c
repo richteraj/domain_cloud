@@ -138,6 +138,22 @@ skip_block_comments (FILE *istr)
     }
 }
 
+void
+skip_strings (FILE *istr)
+{
+  int cur;
+  bool ignore_next = false;
+  while ((cur = getc (istr)) != EOF)
+    {
+      if (ignore_next)
+        ignore_next = false;
+      else if (cur == '\\')
+        ignore_next = true;
+      else if (cur == '"')
+        break;
+    }
+}
+
 int
 remove_clutter (FILE *istr, FILE *ostr)
 {
@@ -167,6 +183,11 @@ remove_clutter (FILE *istr, FILE *ostr)
             {
               putc (cur, ostr);
             }
+        }
+      else if (cur == '"')
+        {
+          skip_strings (istr);
+          reset_state = true;
         }
       else if (cur != EOF)
         putc (cur, ostr);

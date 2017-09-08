@@ -158,6 +158,102 @@ line_comments_supersede_block_comments (void)
   return NULL;
 }
 
+char *
+quoted_strings_are_removed (void)
+{
+  char input[] = "char *res = \"ABC\";";
+  size_t input_len = sizeof (input) - 1;
+  const char *expected_output = "char *res = ;";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
+quoted_strings_with_escaped_quotes_are_removed (void)
+{
+  char input[] = "char *res = \"AB\\\"C\";";
+  size_t input_len = sizeof (input) - 1;
+  const char *expected_output = "char *res = ;";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
+quoted_strings_are_not_terminated_by_newline (void)
+{
+  char input[] = "char *res = \"AB\\\"C\n\";";
+  size_t input_len = sizeof (input) - 1;
+  const char *expected_output = "char *res = ;";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
+quoted_strings_are_terminated_by_eof (void)
+{
+  char input[] = "char *res = \"AB\\\"C\n ...";
+  size_t input_len = sizeof (input) - 1;
+  const char *expected_output = "char *res = ";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
+char *
+comments_are_ignored_inside_quoted_strings (void)
+{
+  char input[] = "char *res = \"AB //...\";";
+  size_t input_len = sizeof (input) - 1;
+  const char *expected_output = "char *res = ;";
+
+  rm_clutter_res res = test_remove_clutter (input, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  char input2[] = "char *res = \"AB /*...\";";
+  input_len = sizeof (input2) - 1;
+  expected_output = "char *res = ;";
+
+  res = test_remove_clutter (input2, input_len);
+
+  require (res.res == 0, caller);
+  require_streq (expected_output, res.output);
+
+  free (res.output);
+
+  return NULL;
+}
+
 void
 all_tests (void)
 {
@@ -167,6 +263,13 @@ all_tests (void)
   CMT_TEST_CASE (block_comments_terminated_by_eof_are_stripped)
   CMT_TEST_CASE (block_comments_are_not_nested)
   CMT_TEST_CASE (line_comments_supersede_block_comments)
+
+  CMT_TEST_CASE (quoted_strings_are_removed)
+  CMT_TEST_CASE (quoted_strings_with_escaped_quotes_are_removed)
+  CMT_TEST_CASE (quoted_strings_are_not_terminated_by_newline)
+  CMT_TEST_CASE (quoted_strings_are_terminated_by_eof)
+
+  CMT_TEST_CASE (comments_are_ignored_inside_quoted_strings)
 }
 
 CMT_RUN_TESTS (all_tests)
