@@ -19,73 +19,130 @@
 
 
 #include <errno.h>
+#include <error.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "domaincloud.h"
+
+void
+process_input_file (const char *input_file, FILE *ostr)
+{
+    bool from_stdin = !strcmp (input_file, "-");
+    FILE *istr = from_stdin ? stdin : fopen (input_file, "r");
+    if (!istr)
+    {
+        error (0, errno, "Can't open '%s'!", input_file);
+        return;
+    }
+
+    int res = remove_clutter (istr, ostr);
+    if (res)
+        error (0, res, "Error during processing of '%s'!", input_file);
+
+    if (!from_stdin)
+        fclose (istr);
+}
 
 int
 main (int argc, char *argv[])
 {
-  int choice;
-  while (true)
+    const char *output_file = "-";
+    bool subs_only = false;
+
+    while (true)
     {
-      int option_index = 0;
+        int option_index = 0;
 
-      static struct option long_options[] =
-      {
-        /* Argument styles:
-           no_argument, required_argument, optional_argument */
-        {"version", no_argument, 0, 'V'},
-        {"help",    no_argument, 0, 'h'},
-        /* TODO add options here */
-        {0, 0, 0, 0}
-      };
+        static struct option long_options[] = {
+            {"version", no_argument, 0, 'V'},
+            {"help",    no_argument, 0, 'h'},
+            {"substitute-only", no_argument, 0, 'S'},
+            {"output",  required_argument, 0, 'o'},
+            {0, 0, 0, 0}
+        };
 
-      /* Argument parameters for an option "o":
-        no_argument: "o"
-        required_argument: "o:"
-        optional_argument: "o::" */
-      choice = getopt_long (
-        argc, argv, "Vh", long_options, &option_index);
+        int choice = getopt_long (
+            argc, argv, "VhSo:", long_options, &option_index);
 
-      /* Finished parsing options */
-      if (choice == -1)
-        break;
+        if (choice == -1)
+            break;
 
-      switch (choice)
+        switch (choice)
         {
-        case 'V':
-          print_version (stdout);
-          exit (EXIT_SUCCESS);
-          break;
+            case 'V':
+                print_version (stdout);
+                exit (EXIT_SUCCESS);
+                break;
 
-        case 'h':
-          print_usage (stdout);
-          exit (EXIT_SUCCESS);
-          break;
+            case 'h':
+                print_usage (stdout);
+                exit (EXIT_SUCCESS);
+                break;
 
-        case '?':
-          /* getopt_long will have already printed an error */
-          print_usage (stderr);
-          exit (EXIT_FAILURE);
-          break;
+            case 'o':
+                output_file = optarg;
+                break;
 
-        default:
-          fprintf (stderr,
-            "?? getopt returned character code %#x ??\n", choice);
+            case 'S':
+                subs_only = true;
+                break;
+
+            case '?':
+                /* getopt_long will have already printed an error */
+                print_usage (stderr);
+                exit (EXIT_FAILURE);
+                break;
+
+            default:
+                fprintf (
+                    stderr, "?? getopt returned character code %#x ??\n", choice);
         }
     }
 
-  /* Non-option arguments */
-  if (optind < argc)
+    if (optind < argc)
     {
-      while (optind < argc)
+        const char *tmp_name = ".rename_me_42";
+        FILE *output_stream;
+        bool to_stdout = !strcmp (output_file, "-");
+
+        if (subs_only)
+            output_stream = to_stdout ? stdout : fopen (output_file, "w");
+        else
+            output_stream = fopen (tmp_name, "w");
+
+        if (!output_stream)
+            error (EXIT_FAILURE, errno, "Can't open '%s' for writing!", output_file);
+
+        for (; optind < argc; ++optind)
+            process_input_file (argv[optind], output_stream);
+
+        if (!to_stdout)
+            fclose (output_stream);
+
+        if (!subs_only)
         {
-          /* TODO deal with arguments */
-          ++optind;
+            char *cmd;
+            asprintf (
+                &cmd,
+                "wordcloud_cli.py --text '%s' --imagefile '%s' "
+                    "--width=1500 --height=1000",
+                tmp_name, output_file);
+            int res = system (cmd);
+            remove (tmp_name);
+            free (cmd);
+
+            if (res)
+                error (EXIT_FAILURE, 0, "wordcloud_cli.py error!");
         }
+    }
+    else
+    {
+        fprintf (stderr, "No input files!\n");
+        print_usage (stderr);
+        exit (EXIT_FAILURE);
     }
 }
 
@@ -106,14 +163,20 @@ print_version (FILE *ostr)
 void
 print_usage (FILE *ostr)
 {
-  fprintf (ostr, "Usage: %s %s\n", PROJECT_NAME, "[OPTION]... [FILE]...");
-  fprintf (ostr,
-           "Generate a word cloud from source files"
-           "and show the domain as expressed by the code.\n\n");
-  /* TODO expand usage information */
-  fprintf (ostr,
-"  -h, --help          display this help and exit\n"
-"  -V, --version       output version information and exit\n");
+    fprintf (ostr, "Usage: %s %s\n", PROJECT_NAME, "[OPTION]... [FILE]...");
+    fprintf (ostr,
+        "Generate a word cloud from source files"
+        "and show the domain as expressed by the code.\n\n");
+
+    fprintf (ostr,
+"  -h, --help          Display this help and exit.\n"
+"  -V, --version       Output version information and exit.\n"
+"  -o FILE, --output=FILE\n"
+"                      Save output int file FILE.\n"
+"  -S, --substitute-only\n"
+"                      Remove comments and string literals only and don't"
+"                      generate an image. If no -o Option is present print"
+"                      to stdout.\n");
 }
 
 void
