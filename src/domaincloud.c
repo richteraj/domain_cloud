@@ -145,53 +145,42 @@ skip_delimiter_escape_aware (int delim, FILE *istr)
     }
 }
 
+void
+try_skip_comments (FILE *istr, FILE *ostr)
+{
+    int next = getc (istr);
+
+    if (next == '/')
+        skip_delimiter_escape_aware ('\n', istr);
+    else if (next == '*')
+        skip_block_comments (istr);
+    else
+    {
+        putc ('/', ostr);
+        ungetc (next, istr);
+    }
+}
+
 int
 remove_clutter (FILE *istr, FILE *ostr)
 {
+    int cur;
 
-  int next;
-  bool reset_state = true;
-
-  while (!feof (istr) && !ferror (ostr))
+    while ((cur = getc (istr)) != EOF && !ferror (ostr))
     {
-      int cur = reset_state ? getc (istr) : next;
-      reset_state = false;
-      next = getc (istr);
-
-      if (cur == '/')
-        {
-          if (next == '/')
-            {
-              skip_delimiter_escape_aware ('\n', istr);
-              reset_state = true;
-            }
-          else if (next == '*')
-            {
-              skip_block_comments (istr);
-              reset_state = true;
-            }
-          else
-              putc ('/', ostr);
-        }
-      else if (cur == '"' || cur == '\'')
-        {
-          if (next != EOF)
-            {
-              ungetc (next, istr);
-              skip_delimiter_escape_aware (cur, istr);
-              reset_state = true;
-            }
-        }
-      else if (cur != EOF)
-          putc (cur, ostr);
+        if (cur == '/')
+            try_skip_comments (istr, ostr);
+        else if (cur == '"' || cur == '\'')
+            skip_delimiter_escape_aware (cur, istr);
+        else
+            putc (cur, ostr);
     }
 
-  if (ferror (istr) || ferror (ostr))
-      return errno;
-  else
-    {
-      fflush (ostr);
-      return 0;
-    }
+    fflush (ostr);
+
+    if (ferror (istr) || ferror (ostr))
+        return errno;
+    else
+        return 0;
 }
 
