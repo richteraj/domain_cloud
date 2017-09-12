@@ -27,30 +27,54 @@
 
 #include "domaincloud.h"
 
-void
-process_input_file (const char *input_file, FILE *ostr)
+struct cli_options
 {
-    bool from_stdin = !strcmp (input_file, "-");
-    FILE *istr = from_stdin ? stdin : fopen (input_file, "r");
-    if (!istr)
-    {
-        error (0, errno, "Can't open '%s'!", input_file);
-        return;
-    }
+    const char *output_file;
+    bool substitute_only;
+    char **arguments;
+    int num_arguments;
+};
 
-    int res = remove_clutter (istr, ostr);
-    if (res)
-        error (0, res, "Error during processing of '%s'!", input_file);
-
-    if (!from_stdin)
-        fclose (istr);
-}
+static void parse_cli_options (char *argv[], int argc, struct cli_options *options);
+static void process_input_file (const char *input_file, FILE *ostr);
+static void generate_word_cloud (const char *input_file, const char *output_file);
 
 int
 main (int argc, char *argv[])
 {
-    const char *output_file = "-";
-    bool subs_only = false;
+    struct cli_options options = {
+        .output_file = "-", .substitute_only = false};
+
+    parse_cli_options (argv, argc, &options);
+
+    const char *tmp_name = ".rename_me_42";
+    FILE *output_stream;
+    bool to_stdout = !strcmp (options.output_file, "-");
+
+    if (options.substitute_only)
+        output_stream = to_stdout ? stdout : fopen (options.output_file, "w");
+    else
+        output_stream = fopen (tmp_name, "w");
+
+    if (!output_stream)
+        error (
+            EXIT_FAILURE, errno,
+            "Can't open '%s' for writing!", options.output_file);
+
+    for (int input_file = 0; input_file < options.num_arguments; ++input_file)
+        process_input_file (options.arguments[input_file], output_stream);
+
+    if (!to_stdout)
+        fclose (output_stream);
+
+    if (!options.substitute_only)
+        generate_word_cloud (tmp_name, options.output_file);
+}
+
+static void
+parse_cli_options (char *argv[], int argc, struct cli_options *options)
+{
+    opterr = 1;
 
     while (true)
     {
@@ -83,11 +107,11 @@ main (int argc, char *argv[])
                 break;
 
             case 'o':
-                output_file = optarg;
+                options->output_file = optarg;
                 break;
 
             case 'S':
-                subs_only = true;
+                options->substitute_only = true;
                 break;
 
             case '?':
@@ -104,39 +128,8 @@ main (int argc, char *argv[])
 
     if (optind < argc)
     {
-        const char *tmp_name = ".rename_me_42";
-        FILE *output_stream;
-        bool to_stdout = !strcmp (output_file, "-");
-
-        if (subs_only)
-            output_stream = to_stdout ? stdout : fopen (output_file, "w");
-        else
-            output_stream = fopen (tmp_name, "w");
-
-        if (!output_stream)
-            error (EXIT_FAILURE, errno, "Can't open '%s' for writing!", output_file);
-
-        for (; optind < argc; ++optind)
-            process_input_file (argv[optind], output_stream);
-
-        if (!to_stdout)
-            fclose (output_stream);
-
-        if (!subs_only)
-        {
-            char *cmd;
-            asprintf (
-                &cmd,
-                "wordcloud_cli.py --text '%s' --imagefile '%s' "
-                    "--width=1500 --height=1000",
-                tmp_name, output_file);
-            int res = system (cmd);
-            remove (tmp_name);
-            free (cmd);
-
-            if (res)
-                error (EXIT_FAILURE, 0, "wordcloud_cli.py error!");
-        }
+        options->arguments = argv + optind;
+        options->num_arguments = argc - optind;
     }
     else
     {
@@ -144,6 +137,23 @@ main (int argc, char *argv[])
         print_usage (stderr);
         exit (EXIT_FAILURE);
     }
+}
+
+static void
+generate_word_cloud (const char *input_file, const char *output_file)
+{
+    char *cmd;
+    asprintf (
+        &cmd,
+        "wordcloud_cli.py --text '%s' --imagefile '%s' "
+        "--width=1500 --height=1000",
+        input_file, output_file);
+    int res = system (cmd);
+    remove (input_file);
+    free (cmd);
+
+    if (res)
+        error (EXIT_FAILURE, 0, "wordcloud_cli.py error!");
 }
 
 /* Print version information to `ostr`.  */
@@ -174,9 +184,28 @@ print_usage (FILE *ostr)
 "  -o FILE, --output=FILE\n"
 "                      Save output int file FILE.\n"
 "  -S, --substitute-only\n"
-"                      Remove comments and string literals only and don't"
-"                      generate an image. If no -o Option is present print"
+"                      Remove comments and string literals only and don't\n"
+"                      generate an image. If no -o Option is present print\n"
 "                      to stdout.\n");
+}
+
+static void
+process_input_file (const char *input_file, FILE *ostr)
+{
+    bool from_stdin = !strcmp (input_file, "-");
+    FILE *istr = from_stdin ? stdin : fopen (input_file, "r");
+    if (!istr)
+    {
+        error (0, errno, "Can't open '%s'!", input_file);
+        return;
+    }
+
+    int res = remove_clutter (istr, ostr);
+    if (res)
+        error (0, res, "Error during processing of '%s'!", input_file);
+
+    if (!from_stdin)
+        fclose (istr);
 }
 
 void
