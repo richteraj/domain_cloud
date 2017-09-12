@@ -48,7 +48,7 @@ Line_comments_including_newline_are_stripped (void)
 {
     char input[] = "line 1 //line 1.2\nline 2 //abc\n//3\nx / / y == z\n/";
     size_t input_len = sizeof (input) - 1;
-    const char expected_output[] = "line 1 line 2 x / / y == z\n/";
+    const char expected_output[] = "line 1 line 2 x / / y == z /";
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
@@ -65,7 +65,7 @@ Line_comments_terminated_by_eof_are_stripped (void)
 {
     char input[] = "line 1 //line 1.2\nline 2 //abc\n//3\nx / / y == z\n//";
     size_t input_len = sizeof (input) - 1;
-    const char expected_output[] = "line 1 line 2 x / / y == z\n";
+    const char expected_output[] = "line 1 line 2 x / / y == z ";
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
@@ -278,7 +278,7 @@ An_even_number_of_preceding_escapes_does_not_escape_the_delimiter (void)
         "even: '4:'//\\\\\\\\\nline 2\n"
         "odd:  '5:'//\\\\\\\\\\\nline 3\nline 4";
     size_t input_len = sizeof (input) - 1;
-    const char *expected_output = "even: text1\nodd:  text4\neven: line 2\nodd:  line 4";
+    const char *expected_output = "even: text1 odd: text4 even: line 2 odd: line 4";
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 

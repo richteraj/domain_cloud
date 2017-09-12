@@ -18,6 +18,7 @@
 */
 
 
+#include <ctype.h>
 #include <errno.h>
 #include <error.h>
 #include <getopt.h>
@@ -238,6 +239,21 @@ skip_delimiter_escape_aware (int delim, FILE *istr)
 }
 
 void
+skip_white_space (FILE *istr, FILE *ostr)
+{
+    putc (' ', ostr);
+    int cur;
+    while ((cur = getc (istr)) != EOF)
+    {
+        if (!isspace (cur))
+        {
+            ungetc (cur, istr);
+            break;
+        }
+    }
+}
+
+void
 try_skip_comments (FILE *istr, FILE *ostr)
 {
     int next = getc (istr);
@@ -264,6 +280,8 @@ remove_clutter (FILE *istr, FILE *ostr)
             try_skip_comments (istr, ostr);
         else if (cur == '"' || cur == '\'')
             skip_delimiter_escape_aware (cur, istr);
+        else if (isspace (cur))
+            skip_white_space (istr, ostr);
         else
             putc (cur, ostr);
     }
