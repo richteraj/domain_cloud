@@ -93,9 +93,9 @@ main (int argc, char *argv[])
 void
 print_version (FILE *ostr)
 {
-  fprintf (ostr, "%s (%s)\n", PROJECT_NAME, PROJECT_VERSION);
-  fprintf (ostr, "Copyright %s %s\n", PROJECT_COPY_YEARS, PROJECT_AUTHORS);
-  fprintf (ostr,
+    fprintf (ostr, "%s (%s)\n", PROJECT_NAME, PROJECT_VERSION);
+    fprintf (ostr, "Copyright %s %s\n", PROJECT_COPY_YEARS, PROJECT_AUTHORS);
+    fprintf (ostr,
 "License GPLv3+: "
     "GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n"
 "This is free software: you are free to change and redistribute it.\n"
@@ -119,29 +119,29 @@ print_usage (FILE *ostr)
 void
 skip_block_comments (FILE *istr)
 {
-  int cur = getc (istr);
-  int next;
-  while ((next = getc (istr)) != EOF)
+    int cur = getc (istr);
+    int next;
+    while ((next = getc (istr)) != EOF)
     {
-      if (cur == '*' && next == '/')
-        break;
-      cur = next;
+        if (cur == '*' && next == '/')
+            break;
+        cur = next;
     }
 }
 
 void
 skip_delimiter_escape_aware (int delim, FILE *istr)
 {
-  int cur;
-  bool ignore_next = false;
-  while ((cur = getc (istr)) != EOF)
+    int cur;
+    bool ignore_next = false;
+    while ((cur = getc (istr)) != EOF)
     {
-      if (ignore_next)
-        ignore_next = false;
-      else if (cur == '\\')
-        ignore_next = true;
-      else if (cur == delim)
-        break;
+        if (ignore_next)
+            ignore_next = false;
+        else if (cur == '\\')
+            ignore_next = true;
+        else if (cur == delim)
+            break;
     }
 }
 
