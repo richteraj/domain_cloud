@@ -9,6 +9,7 @@ set (PROJECT_COPY_YEARS "2017")
 
 set (src_DIR ${PROJECT_SOURCE_DIR}/src)
 set (tests_DIR ${PROJECT_SOURCE_DIR}/tests)
+set (doc_DIR ${PROJECT_SOURCE_DIR}/doc)
 set (bin_DIR ${PROJECT_SOURCE_DIR}/bin)
 set (lib_DIR ${PROJECT_SOURCE_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${bin_DIR})
@@ -33,6 +34,7 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 add_subdirectory (${src_DIR})
 add_subdirectory (${tests_DIR})
+add_subdirectory (${doc_DIR})
 
 
 # Summary
