@@ -22,8 +22,10 @@ set (CMAKE_C_STANDARD_REQUIRED ON)
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -O3")
 if (CMAKE_C_COMPILER_ID STREQUAL Clang)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-gnu-zero-variadic-macro-arguments -Wno-missing-prototypes -Wno-variadic-macros")
-    set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O2 -Weverything")
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+        -Wno-gnu-zero-variadic-macro-arguments -Wno-missing-prototypes \
+        -Wno-variadic-macros")
+    set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O2 -Weverything -Wno-padded")
 elseif (CMAKE_C_COMPILER_ID STREQUAL GNU)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-variadic-macros")
     set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wformat=2 -Og")

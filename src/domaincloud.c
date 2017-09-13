@@ -26,10 +26,10 @@
  */
 struct cli_options
 {
-    const char *output_file;
-    bool substitute_only;
     char **arguments;
+    const char *output_file;
     int num_arguments;
+    bool substitute_only;
 };
 
 static void parse_cli_options (char *argv[], int argc, struct cli_options *options);
@@ -97,12 +97,10 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
             case 'V':
                 print_version (stdout);
                 exit (EXIT_SUCCESS);
-                break;
 
             case 'h':
                 print_usage (stdout);
                 exit (EXIT_SUCCESS);
-                break;
 
             case 'o':
                 options->output_file = optarg;
@@ -116,7 +114,6 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
                 /* getopt_long will have already printed an error */
                 print_usage (stderr);
                 exit (EXIT_FAILURE);
-                break;
 
             default:
                 fprintf (

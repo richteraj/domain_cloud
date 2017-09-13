@@ -5,7 +5,7 @@
 #ifndef DOMAINCLOUD_H_
 #define DOMAINCLOUD_H_
 
-#if HAVE_CONFIG_H
+#if defined (HAVE_CONFIG_H) && HAVE_CONFIG_H
 # include "config.h"
 #endif
 
