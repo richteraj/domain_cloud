@@ -5,7 +5,7 @@ EXCLUDE                = "@lib_DIR@" \
                          "@bin_DIR@" \
                          "@doc_DIR@"
 
-EXTRACT_ALL            = YES
+EXTRACT_ALL            = NO
 EXTRACT_PRIVATE        = YES
 EXTRACT_PACKAGE        = YES
 EXTRACT_STATIC         = YES
