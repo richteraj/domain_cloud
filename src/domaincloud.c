@@ -1,3 +1,7 @@
+/** \file
+ * Generate a word cloud from source files and show the domain as
+ * expressed by the code. */
+
 #include <ctype.h>
 #include <errno.h>
 #include <error.h>
@@ -8,6 +12,18 @@
 
 #include "domaincloud.h"
 
+/** \struct cli_options
+ *  \brief Flags and arguments to be set by \ref parse_cli_options.
+ *
+ *  \var const char *cli_options::output_file
+ *      Where to put the final result.
+ *  \var bool cli_options::substitute_only
+ *      Strip unwanted clutter from source only.
+ *  \var char **cli_options::arguments
+ *      The part of \a argv where the arguments begin.
+ *  \var int cli_options::num_arguments
+ *      Number of arguments.
+ */
 struct cli_options
 {
     const char *output_file;
@@ -52,6 +68,7 @@ main (int argc, char *argv[])
         generate_word_cloud (tmp_name, options.output_file);
 }
 
+/** Parse CLI options and put results into \a options.  Will exit on error. */
 static void
 parse_cli_options (char *argv[], int argc, struct cli_options *options)
 {
@@ -120,6 +137,12 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
     }
 }
 
+/** Generate a word cloud from \a input_file and save the resulting PNG
+ *  image to the file \a output_file.
+ *  Using the
+ *  <a href="https://github.com/amueller/word_cloud">wordcloud_cli.py</a>
+ *  program.  Exit if this program encounters problems.
+ */
 static void
 generate_word_cloud (const char *input_file, const char *output_file)
 {
@@ -137,7 +160,7 @@ generate_word_cloud (const char *input_file, const char *output_file)
         error (EXIT_FAILURE, 0, "wordcloud_cli.py error!");
 }
 
-/* Print version information to `ostr`.  */
+/** Print version information to \a ostr.  */
 void
 print_version (FILE *ostr)
 {
@@ -150,14 +173,14 @@ print_version (FILE *ostr)
 "There is NO WARRANTY, to the extent permitted by law.\n");
 }
 
-/* Print usage to `ostr`.  */
+/** Print usage information to \a ostr.  */
 void
 print_usage (FILE *ostr)
 {
-    fprintf (ostr, "Usage: %s %s\n", PROJECT_NAME, "[OPTION]... [FILE]...");
+    fprintf (ostr, "Usage: %s %s\n", PROJECT_NAME, "[OPTION]... [FILE]...\n");
     fprintf (ostr,
-        "Generate a word cloud from source files"
-        "and show the domain as expressed by the code.\n\n");
+"Generate a word cloud from source files and show the domain as expressed by\n"
+"the code.\n\n");
 
     fprintf (ostr,
 "  -h, --help          Display this help and exit.\n"
@@ -170,6 +193,17 @@ print_usage (FILE *ostr)
 "                      to stdout.\n");
 }
 
+/** Try to open \a input_file and use this together with \a ostr as arguments
+ *  to \ref remove_clutter.
+ *
+ *  If \a input_file is \c "-", will use \a stdin as input.
+ *  Print an error, if the file can't be opened.
+ *  Exit if \a remove_clutter failed.
+ *
+ *  \param input_file Name of an existing file or \c "-".
+ *  \param ostr The file handle where non-skipped text will be appended.  Has
+ *      to be opened for writing.
+ */
 static void
 process_input_file (const char *input_file, FILE *ostr)
 {
@@ -189,6 +223,11 @@ process_input_file (const char *input_file, FILE *ostr)
         fclose (istr);
 }
 
+/** Advance \a istr past the next <tt>*</tt><tt>/</tt> or to \a EOF.
+ *
+ *  \param istr The file handle to the input source.  Has to be opened
+ *      for reading.
+ */
 void
 skip_block_comments (FILE *istr)
 {
@@ -202,6 +241,13 @@ skip_block_comments (FILE *istr)
     }
 }
 
+/** Advance \a istr past the first not escaped delimiter char \a delim
+ *  or to \a EOF.
+ *
+ *  \param delim The delimiter char.
+ *  \param istr The file handle to the input source.  Has to be opened
+ *      for reading.
+ */
 void
 skip_delimiter_escape_aware (int delim, FILE *istr)
 {
@@ -218,6 +264,17 @@ skip_delimiter_escape_aware (int delim, FILE *istr)
     }
 }
 
+/** Write a space to \a ostr and skip following white space. The first
+ *  char that is not white space is pushed back to \a istr.
+ *
+ *  \param istr The file handle to the input source.  Has to be opened
+ *      for reading.
+ *  \param ostr The file handle where non-skipped text will be put.  Has
+ *      to be opened for writing.
+ *  \pre The last char read was a white space.
+ *  \post The position of \a ostr is at the first char that is not white space
+ *      or at \a EOF.
+ */
 void
 skip_white_space (FILE *istr, FILE *ostr)
 {
@@ -233,6 +290,21 @@ skip_white_space (FILE *istr, FILE *ostr)
     }
 }
 
+/** Skip block or line comments if the next read char is \c / or <tt>*</tt>,
+ *  respectively.  Otherwise push back this char with \a ungetc and put \c /
+ *  to \a ostr.
+ *
+ *  \param istr The file handle to the input source.  Has to be opened
+ *      for reading.
+ *  \param ostr The file handle where non-skipped text will be put.  Has
+ *      to be opened for writing.
+ *  \pre The last char read was a \c /.
+ *  \post The position of \a ostr is
+ *    \li after the first not escaped newline (line comment \c //),
+ *    \li after the first <tt>*</tt><tt>/</tt> (block comment),
+ *    \li at the position of the start of the function call (not a comment) or
+ *    \li at \a EOF (comment "terminated" by \a EOF).
+ */
 void
 try_skip_comments (FILE *istr, FILE *ostr)
 {
@@ -249,6 +321,18 @@ try_skip_comments (FILE *istr, FILE *ostr)
     }
 }
 
+/** Copy content of \a istr to \a ostr while skipping comments,
+ *  string literals and replacing successive white space by a single
+ *  space.
+ *
+ *  \param istr The file handle to the input source.  Has to be opened
+ *      for reading.
+ *  \param ostr The file handle where non-skipped text will be put.  Has
+ *      to be opened for writing.
+ *      Will be flushed after processing.
+ *  \returns \a errno if some I/O error occurred else 0.
+ *  \post \c feof(istr) is true.
+ */
 int
 remove_clutter (FILE *istr, FILE *ostr)
 {
@@ -274,10 +358,7 @@ remove_clutter (FILE *istr, FILE *ostr)
         return 0;
 }
 
-/*
-   domaincloud.c -- Generate a word cloud from source files and
-                    show the domain as expressed by the code.
-   Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
+/* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

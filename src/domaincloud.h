@@ -1,3 +1,7 @@
+/** \file
+ * Generate a word cloud from source files and show the domain as
+ * expressed by the code. */
+
 #ifndef DOMAINCLOUD_H_
 #define DOMAINCLOUD_H_
 
@@ -14,10 +18,7 @@ int remove_clutter (FILE *istr, FILE *ostr);
 
 #endif /* not DOMAINCLOUD_H_ */
 
-/*
-   domaincloud.h -- Generate a word cloud from source files and show the
-                    domain as expressed by the code.
-   Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
+/* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

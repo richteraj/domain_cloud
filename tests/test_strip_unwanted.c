@@ -1,8 +1,18 @@
+/** \file
+ * Tests for stripping comments from sources etc. */
 #include <string.h>
 
 #include "domaincloud.h"
 #include "cminitests.h"
 
+/** \struct rm_clutter_res
+ *  Bundle the result of \ref remove_clutter.
+ *
+ *  \var int rm_clutter_res::res
+ *      The return status of \a remove_clutter.
+ *  \var char *rm_clutter_res::output
+ *      The output that \a remove_clutter generated.  Has to be freed.
+ * */
 typedef struct
 {
     int res;
@@ -294,9 +304,7 @@ all_tests (void)
 
 CMT_RUN_TESTS (all_tests)
 
-/*
-   test_strip_unwanted.c -- tests for stripping comments etc. from sources
-   Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
+/* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
