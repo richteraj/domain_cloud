@@ -18,8 +18,10 @@
 #define cmt_set_up()
 #define cmt_tear_down()
 
-int tests_count;
-int tests_failed;
+/** Total number of tests run with \ref CMT_TEST_CASE. */
+extern int tests_count;
+/** Total number of tests run with \ref CMT_TEST_CASE which failed. */
+extern int tests_failed;
 
 #define cmt_error(msg, ...) \
  fprintf (stderr, \
@@ -70,10 +72,10 @@ int tests_failed;
    return #cond " NOT false: " #message; }
 
 #define require_streq(s1, s2, message...) { \
-  int s1_len = strlen (s1); \
-  int s2_len = strlen (s2); \
+  size_t s1_len = strlen (s1); \
+  size_t s2_len = strlen (s2); \
   if (s1_len != s2_len) { \
-    cmt_error ("Length '%s' != '%s' (%d != %d)", s1, s2, s1_len, s2_len); \
+    cmt_error ("Length '%s' != '%s' (%zd != %zd)", s1, s2, s1_len, s2_len); \
     return #s1 " != " #s2 ": " #message; } \
   else if (strcmp (s1, s2)) { \
     cmt_error ("'%s' != '%s'", s1, s2); \
@@ -130,6 +132,9 @@ streqneq_array (char **sa1, char **sa2, bool cmp_equal)
     cmt_error ("Arrays %s and %s are equal", #sa1, #sa2); \
     return "Arrays match: " #message; } \
   }
+
+int tests_count;
+int tests_failed;
 
 #endif /* not CMINITESTS_H_ */
 
