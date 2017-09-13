@@ -1,0 +1,31 @@
+@INCLUDE_PATH          = "@doc_DIR@"
+@INCLUDE               = Doxyfile-common
+
+EXCLUDE                = "@lib_DIR@" \
+                         "@bin_DIR@" \
+                         "@doc_DIR@"
+
+EXTRACT_ALL            = NO
+EXTRACT_PRIVATE        = YES
+EXTRACT_PACKAGE        = YES
+EXTRACT_STATIC         = YES
+HIDE_IN_BODY_DOCS      = YES
+INTERNAL_DOCS          = YES
+
+# `QUIET = NO` will mix stdout and stderr, which confuses the quick-fix list
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_AS_ERROR          = NO
+
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
+ALLEXTERNALS           = YES
+HIDE_UNDOC_RELATIONS   = YES
+
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+
+# vim: set ft=conf:

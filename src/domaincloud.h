@@ -1,6 +1,24 @@
-/*
-   domaincloud.h -- Generate a word cloud from source files and show the domain as expressed by the code.
-   Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
+/** \file
+ * Generate a word cloud from source files and show the domain as
+ * expressed by the code. */
+
+#ifndef DOMAINCLOUD_H_
+#define DOMAINCLOUD_H_
+
+#if defined (HAVE_CONFIG_H) && HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+
+void print_version (FILE *ostr);
+void print_usage (FILE *ostr);
+
+int remove_clutter (FILE *istr, FILE *ostr);
+
+#endif /* not DOMAINCLOUD_H_ */
+
+/* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,17 +34,3 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#ifndef DOMAINCLOUD_H_
-#define DOMAINCLOUD_H_
-
-#if HAVE_CONFIG_H
-# include "config.h"
-#endif
-
-#include <stdio.h>
-
-void print_version (FILE *ostr);
-void print_usage (FILE *ostr);
-
-#endif /* not DOMAINCLOUD_H_ */
