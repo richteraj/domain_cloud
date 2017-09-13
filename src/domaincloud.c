@@ -194,8 +194,8 @@ print_usage (FILE *ostr)
  *  to \ref remove_clutter.
  *
  *  If \a input_file is \c "-", will use \a stdin as input.
- *  Print an error, if the file can't be opened.
- *  Exit if \a remove_clutter failed.
+ *  Print an error message, if the file can't be opened or if \a remove_clutter
+ *  failed.
  *
  *  \param input_file Name of an existing file or \c "-".
  *  \param ostr The file handle where non-skipped text will be appended.  Has
