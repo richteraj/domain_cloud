@@ -35,7 +35,7 @@ WARN_LOGFILE           =
 INPUT                  =
 SHORT_NAMES            = NO
 
-JAVADOC_AUTOBRIEF      = NO
+JAVADOC_AUTOBRIEF      = YES
 QT_AUTOBRIEF           = NO
 MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
