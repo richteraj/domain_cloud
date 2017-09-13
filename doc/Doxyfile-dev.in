@@ -27,3 +27,5 @@ HIDE_UNDOC_RELATIONS   = YES
 
 CALL_GRAPH             = YES
 CALLER_GRAPH           = YES
+
+# vim: set ft=conf:
