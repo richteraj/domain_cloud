@@ -1,3 +1,19 @@
+#ifndef DOMAINCLOUD_H_
+#define DOMAINCLOUD_H_
+
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+
+void print_version (FILE *ostr);
+void print_usage (FILE *ostr);
+
+int remove_clutter (FILE *istr, FILE *ostr);
+
+#endif /* not DOMAINCLOUD_H_ */
+
 /*
    domaincloud.h -- Generate a word cloud from source files and show the
                     domain as expressed by the code.
@@ -17,19 +33,3 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#ifndef DOMAINCLOUD_H_
-#define DOMAINCLOUD_H_
-
-#if HAVE_CONFIG_H
-# include "config.h"
-#endif
-
-#include <stdio.h>
-
-void print_version (FILE *ostr);
-void print_usage (FILE *ostr);
-
-int remove_clutter (FILE *istr, FILE *ostr);
-
-#endif /* not DOMAINCLOUD_H_ */

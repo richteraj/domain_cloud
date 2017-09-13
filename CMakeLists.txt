@@ -1,20 +1,3 @@
-# CMakeLists.txt -- global project configuration
-# Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
 # Project Properties
 ##
 cmake_minimum_required (VERSION 3.0)
@@ -123,4 +106,20 @@ message ("C compiler: ${CMAKE_C_COMPILER}")
 message ("  Flags:         ${CMAKE_C_FLAGS}")
 message ("  Flags (Debug): ${CMAKE_C_FLAGS_DEBUG}")
 message ("  -D:            ${domain_cloud_C_DEFINITIONS_used}")
+
+# CMakeLists.txt -- global project configuration
+# Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
