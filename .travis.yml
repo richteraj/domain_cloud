@@ -5,5 +5,5 @@ compiler:
     - clang
     - gcc
 script:
-    - "./configure && make"
+    - "./configure && make --silent"
     - "cd build && ctest -V"
