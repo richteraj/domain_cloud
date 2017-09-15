@@ -32,7 +32,7 @@ mkdir "$build_dir"
 
 cat >Makefile <<EOF
 # Auto-generated build file
-# Will be overwritten by ./configure.sh
+# Will be overwritten by ./configure
 
 BUILD_DIR = "$build_dir"
 referred_targets = all clean install doc test
