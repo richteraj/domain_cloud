@@ -12,6 +12,8 @@ foreach (test_source IN LISTS srcs)
     add_test (NAME ${test_target} COMMAND ${test_target})
 endforeach (test_source)
 
+set_property (TEST test_domaincloud PROPERTY WILL_FAIL 1)
+
 # CMakeLists.txt - CMake tests files
 # Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 #
