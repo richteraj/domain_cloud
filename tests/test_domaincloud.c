@@ -19,14 +19,14 @@ cmt_tear_down (void)
 char *
 this_test_will_fail (void)
 {
-    require (0 > 1, "TODO Fill in the integration tests for domaincloud.");
+    require (0 > 1, "TODO Fill in the integration tests for domaincloud.",)
     return NULL;
 }
 
 void
 all_tests (void)
 {
-    CMT_TEST_CASE (this_test_will_fail)
+    CMT_TEST_CASE (this_test_will_fail,)
 }
 
 CMT_RUN_TESTS (all_tests)

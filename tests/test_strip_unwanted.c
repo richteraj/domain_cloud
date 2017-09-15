@@ -44,8 +44,8 @@ Line_comments_including_newline_are_stripped (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -61,8 +61,8 @@ Line_comments_terminated_by_eof_are_stripped (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -78,8 +78,8 @@ Line_comments_continue_with_excaped_newline (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -95,8 +95,8 @@ Block_comments_terminated_by_eof_are_stripped (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -112,8 +112,8 @@ Block_comments_are_not_nested (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -129,8 +129,8 @@ Inline_block_comments_are_stripped (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -146,8 +146,8 @@ Line_comments_supersede_block_comments (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -163,8 +163,8 @@ Quoted_strings_are_removed (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -180,8 +180,8 @@ Quoted_strings_with_escaped_quotes_are_removed (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -197,8 +197,8 @@ Quoted_strings_are_not_terminated_by_newline (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -214,8 +214,8 @@ Quoted_strings_are_terminated_by_eof (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -225,8 +225,8 @@ Quoted_strings_are_terminated_by_eof (void)
 
     res = test_remove_clutter (input2, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -242,8 +242,8 @@ Comments_are_ignored_inside_quoted_strings (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -253,8 +253,8 @@ Comments_are_ignored_inside_quoted_strings (void)
 
     res = test_remove_clutter (input2, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -274,8 +274,8 @@ An_even_number_of_preceding_escapes_does_not_escape_the_delimiter (void)
 
     rm_clutter_res res = test_remove_clutter (input, input_len);
 
-    require (res.res == 0, caller);
-    require_streq (expected_output, res.output);
+    require (res.res == 0, caller,)
+    require_streq (expected_output, res.output,)
 
     free (res.output);
 
@@ -285,21 +285,21 @@ An_even_number_of_preceding_escapes_does_not_escape_the_delimiter (void)
 void
 all_tests (void)
 {
-    CMT_TEST_CASE (Line_comments_including_newline_are_stripped)
-    CMT_TEST_CASE (Line_comments_terminated_by_eof_are_stripped)
-    CMT_TEST_CASE (Line_comments_continue_with_excaped_newline)
-    CMT_TEST_CASE (Inline_block_comments_are_stripped)
-    CMT_TEST_CASE (Block_comments_terminated_by_eof_are_stripped)
-    CMT_TEST_CASE (Block_comments_are_not_nested)
-    CMT_TEST_CASE (Line_comments_supersede_block_comments)
+    CMT_TEST_CASE (Line_comments_including_newline_are_stripped,)
+    CMT_TEST_CASE (Line_comments_terminated_by_eof_are_stripped,)
+    CMT_TEST_CASE (Line_comments_continue_with_excaped_newline,)
+    CMT_TEST_CASE (Inline_block_comments_are_stripped,)
+    CMT_TEST_CASE (Block_comments_terminated_by_eof_are_stripped,)
+    CMT_TEST_CASE (Block_comments_are_not_nested,)
+    CMT_TEST_CASE (Line_comments_supersede_block_comments,)
 
-    CMT_TEST_CASE (Quoted_strings_are_removed)
-    CMT_TEST_CASE (Quoted_strings_with_escaped_quotes_are_removed)
-    CMT_TEST_CASE (Quoted_strings_are_not_terminated_by_newline)
-    CMT_TEST_CASE (Quoted_strings_are_terminated_by_eof)
+    CMT_TEST_CASE (Quoted_strings_are_removed,)
+    CMT_TEST_CASE (Quoted_strings_with_escaped_quotes_are_removed,)
+    CMT_TEST_CASE (Quoted_strings_are_not_terminated_by_newline,)
+    CMT_TEST_CASE (Quoted_strings_are_terminated_by_eof,)
 
-    CMT_TEST_CASE (Comments_are_ignored_inside_quoted_strings)
-    CMT_TEST_CASE (An_even_number_of_preceding_escapes_does_not_escape_the_delimiter)
+    CMT_TEST_CASE (Comments_are_ignored_inside_quoted_strings,)
+    CMT_TEST_CASE (An_even_number_of_preceding_escapes_does_not_escape_the_delimiter,)
 }
 
 CMT_RUN_TESTS (all_tests)
