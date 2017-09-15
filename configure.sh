@@ -16,9 +16,10 @@ fi
 echo "-- Detecting CMake - done: $cmake"
 
 echo "-- Creating build directory"
-build_dir="build"
+build_dir=${BUILD_DIR:-"build"}
+
 if [ -e "$build_dir" ]; then
-    if [ -n $force_build_delete ]; then
+    if [ -n "$force_build_delete" ]; then
         echo "-- Removing old build directory"
         rm -fr "$build_dir/"
     else
@@ -32,7 +33,7 @@ echo "-- Creating build directory - done: $build_dir"
 
 echo "-- Running CMake configuration: 'cmake .. $@'"
 cd "$build_dir"
-if ! cmake .. "$@"; then
+if ! cmake .. -DCMAKE_BUILD_TYPE=Release "$@"; then
     exit 1
 fi
 echo "-- Running CMake configuration - done"
