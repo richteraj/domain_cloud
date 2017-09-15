@@ -4,3 +4,6 @@ language: c
 compiler:
     - clang
     - gcc
+script:
+    - "./configure && make"
+    - "cd build && ctest -V"
