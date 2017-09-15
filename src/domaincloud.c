@@ -144,11 +144,14 @@ static void
 generate_word_cloud (const char *input_file, const char *output_file)
 {
     char *cmd;
-    asprintf (
+    int length = asprintf (
         &cmd,
         "wordcloud_cli.py --text '%s' --imagefile '%s' "
         "--width=1500 --height=1000",
         input_file, output_file);
+    if (length < 0)
+        error (EXIT_FAILURE, 0, "Memory allocation error");
+
     int res = system (cmd);
     remove (input_file);
     free (cmd);
