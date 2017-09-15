@@ -13,16 +13,13 @@ add_definitions (-DHAVE_CONFIG_H=1)
 add_executable (domaincloud domaincloud.c)
 add_dependencies (domaincloud config_h)
 
-# Gather other sources into a lib
-# TODO Change to fit the project
+# Gather sources into a lib for testing purposes
 file (GLOB srcs *.c)
-list (REMOVE_ITEM srcs domaincloud.c)
 add_library (domaincloudlib SHARED ${srcs})
-target_link_libraries (domaincloud domaincloudlib)
 add_dependencies (domaincloudlib config_h)
 
 install(
-    TARGETS domaincloud domaincloudlib
+    TARGETS domaincloud
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib/static)
