@@ -149,7 +149,9 @@ HTML_HEADER            =
 HTML_FOOTER            =
 HTML_STYLESHEET        =
 HTML_EXTRA_STYLESHEET  =
-HTML_EXTRA_FILES       =
+# TODO Files are copied to base directory so relative links to this picture
+# in README.md will not work.
+HTML_EXTRA_FILES       = "@PROJECT_SOURCE_DIR@/doc/domaincloud_wc.png"
 HTML_COLORSTYLE_HUE    = 60
 HTML_COLORSTYLE_SAT    = 100
 HTML_COLORSTYLE_GAMMA  = 80
