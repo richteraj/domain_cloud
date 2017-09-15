@@ -21,7 +21,7 @@ build_dir=${BUILD_DIR:-"build"}
 if [ -e "$build_dir" ]; then
     if [ -n "$force_build_delete" ]; then
         echo "-- Removing old build directory"
-        rm -fr "$build_dir/"
+        rm -fr "$build_dir/" Makefile
     else
         echo "Error: build dir '$build_dir' already exists" >&2
         echo "  First delete the old directory or use the '-f' option." >&2
@@ -29,6 +29,20 @@ if [ -e "$build_dir" ]; then
     fi
 fi
 mkdir "$build_dir"
+
+cat >Makefile <<EOF
+# Auto-generated build file
+# Will be overwritten by ./configure.sh
+
+BUILD_DIR = "$build_dir"
+referred_targets = all clean install doc test
+
+\$(referred_targets): \$(BUILD_DIR)
+\$(BUILD_DIR):
+	\$(MAKE) -C \$@ \$(MAKECMDGOALS)
+.PHONY: \$(BUILD_DIR) \$(referred_targets)
+EOF
+
 echo "-- Creating build directory - done: $build_dir"
 
 echo "-- Running CMake configuration: 'cmake .. $@'"

@@ -2,6 +2,7 @@
 /build*/
 /bin/
 /lib/
+/Makefile
 
 /doc/doxygen/
 /doc/Doxyfile-dev
