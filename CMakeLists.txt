@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.0)
 set (CMAKE_BUILD_TYPE Debug CACHE STRING
     "Debug, Release, RelWithDebInfo or MinSizeRel")
 
-project (domain_cloud VERSION 0.1.1 LANGUAGES C)
+project (domain_cloud VERSION 0.1.2 LANGUAGES C)
 set (PROJECT_AUTHORS "A. Johannes RICHTER")
 set (PROJECT_COPY_YEARS "2017")
 

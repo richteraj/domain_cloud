@@ -14,6 +14,13 @@ endforeach (test_source)
 
 set_property (TEST test_domaincloud PROPERTY WILL_FAIL 1)
 
+file (GLOB srcs test_*.sh)
+foreach (test_sh_script IN LISTS srcs)
+    get_filename_component (test_target ${test_sh_script} NAME_WE)
+    add_test (NAME ${test_target}
+        COMMAND sh ${test_sh_script} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endforeach (test_source)
+
 # CMakeLists.txt - CMake tests files
 # Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 #

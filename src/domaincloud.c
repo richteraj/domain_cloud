@@ -228,7 +228,7 @@ process_input_file (const char *input_file, FILE *ostr)
  *  \param istr The file handle to the input source.  Has to be opened
  *      for reading.
  */
-void
+static void
 skip_block_comments (FILE *istr)
 {
     int cur = getc (istr);
@@ -248,7 +248,7 @@ skip_block_comments (FILE *istr)
  *  \param istr The file handle to the input source.  Has to be opened
  *      for reading.
  */
-void
+static void
 skip_delimiter_escape_aware (int delim, FILE *istr)
 {
     int cur;
@@ -275,7 +275,7 @@ skip_delimiter_escape_aware (int delim, FILE *istr)
  *  \post The position of \a ostr is at the first char that is not white space
  *      or at \a EOF.
  */
-void
+static void
 skip_white_space (FILE *istr, FILE *ostr)
 {
     putc (' ', ostr);
@@ -305,7 +305,7 @@ skip_white_space (FILE *istr, FILE *ostr)
  *    \li at the position of the start of the function call (not a comment) or
  *    \li at \a EOF (comment "terminated" by \a EOF).
  */
-void
+static void
 try_skip_comments (FILE *istr, FILE *ostr)
 {
     int next = getc (istr);
