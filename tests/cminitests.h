@@ -3,6 +3,9 @@
 #ifndef _GNU_SOURCE
     #define _GNU_SOURCE
 #endif /* not _GNU_SOURCE */
+#ifndef COLOR_MODE
+    #define COLOR_MODE 1
+#endif /* not COLOR_MODE */
 
 #ifndef CMINITESTS_H_
 #define CMINITESTS_H_
@@ -23,14 +26,51 @@ extern int tests_count;
 /** Total number of tests run with \ref CMT_TEST_CASE which failed. */
 extern int tests_failed;
 
-#define cmt_error(msg, ...) \
-    fprintf (stderr, \
-        "%s:%d: %s failed: \n >>>\t" #msg "\n", \
-        __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+/** Escape sequences for terminal coloring.  If \c COLOR_MODE is not true
+ *  all colors will be an empty string.
+ *  Print the color string \c _colorful.<em>\<color\></em> to a terminal
+ *  output to switch the text color and print the \c _colorful.none value to
+ *  reset the default color.
+ */
+static struct _colorful_s {
+    const char *none;
+    const char *blue;
+    const char *green;
+    const char *red;
+    const char *brown;
+    const char *cyan;
+} _colorful =
+{
+#if COLOR_MODE
+    .none = "\033[0m",
+    .blue = "\033[0;34m",
+    .green = "\033[0;32m",
+    .red = "\033[0;31m",
+    .brown = "\033[0;33m",
+    .cyan = "\033[0;35m"
+#else
+    .none = "",
+    .blue = "",
+    .green = "",
+    .red = "",
+    .brown = "",
+    .cyan = ""
+#endif
+};
 
-#define cmt_require_status(msg, ...) \
+#define cmt_error(msg, ...) { \
     fprintf (stderr, \
-        " >>>\t" #msg "\n", ##__VA_ARGS__)
+        "%s:%d: %s %sfailed%s: \n >>>\t%s" #msg, \
+        __FILE__, __LINE__, __func__, \
+        _colorful.cyan, _colorful.none,  _colorful.brown, ##__VA_ARGS__); \
+    fprintf (stderr, "%s\n", _colorful.none); \
+}
+
+#define cmt_require_status(msg, ...) { \
+    fprintf (stderr, \
+        " >>>\t%s" #msg, _colorful.brown, ##__VA_ARGS__) \
+    fprintf (stderr, "%s\n", _colorful.none); \
+}
 
 #define CMT_TEST_CASE(test, args...) { \
     ++tests_count; \
@@ -41,7 +81,7 @@ extern int tests_failed;
         cmt_error ("%s", test##_result); \
         ++tests_failed; } \
     else { \
-        printf (#test " passed.\n"); } \
+        printf (#test " %spassed%s.\n", _colorful.green, _colorful.none); } \
 }
 
 #define CMT_RUN_TESTS(tests_wrapper) \
@@ -50,15 +90,16 @@ extern int tests_failed;
         assert (argc > 0); \
         tests_failed = 0; \
         tests_count = 0; \
-        printf ("------ RUNNING: %s\n", argv[0]); \
+        printf ("%s------ RUNNING: %s%s\n", _colorful.blue, argv[0], _colorful.none); \
         tests_wrapper (); \
+        printf ("%s---------------------%s\n", _colorful.blue, _colorful.none); \
         if (tests_count != 0 && tests_failed != 0) { \
             error (EXIT_FAILURE, 0, \
-                "%d of %d tests did NOT pass.\n", \
-                tests_failed, tests_count); } \
+                "%s%d of %d tests did NOT pass.%s\n", \
+                _colorful.cyan, tests_failed, tests_count, _colorful.none); } \
         else { \
-            printf ("------ All %d tests passed.\n", tests_count); \
-            return EXIT_SUCCESS; } \
+            printf ("%s------ All %d tests passed.%s\n", \
+                _colorful.green, tests_count, _colorful.none); } \
     }
 
 #define require(cond, message...) \
