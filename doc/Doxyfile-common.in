@@ -104,7 +104,7 @@ FILE_PATTERNS          = *.c *.cc *.cxx *.cpp *.c++ \
                          *.m \
                          *.markdown *.md *.mm \
                          *.dox \
-                         *.py *.pyw \
+                         *.py *.pyw
 
 RECURSIVE              = YES
 EXCLUDE                = "@lib_DIR@" \
