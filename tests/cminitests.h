@@ -81,7 +81,7 @@ static struct _colorful_s {
         cmt_error ("%s", test##_result); \
         ++tests_failed; } \
     else { \
-        printf (#test " %spassed%s.\n", _colorful.green, _colorful.none); } \
+        fprintf (stderr, #test " %spassed%s.\n", _colorful.green, _colorful.none); } \
 }
 
 #define CMT_RUN_TESTS(tests_wrapper) \
@@ -90,15 +90,15 @@ static struct _colorful_s {
         assert (argc > 0); \
         tests_failed = 0; \
         tests_count = 0; \
-        printf ("%s------ RUNNING: %s%s\n", _colorful.blue, argv[0], _colorful.none); \
+        fprintf (stderr, "%s------ RUNNING: %s%s\n", _colorful.blue, argv[0], _colorful.none); \
         tests_wrapper (); \
-        printf ("%s---------------------%s\n", _colorful.blue, _colorful.none); \
+        fprintf (stderr, "%s---------------------%s\n", _colorful.blue, _colorful.none); \
         if (tests_count != 0 && tests_failed != 0) { \
             error (EXIT_FAILURE, 0, \
                 "%s%d of %d tests did NOT pass.%s\n", \
                 _colorful.cyan, tests_failed, tests_count, _colorful.none); } \
         else { \
-            printf ("%s------ All %d tests passed.%s\n", \
+            fprintf (stderr, "%s------ All %d tests passed.%s\n", \
                 _colorful.green, tests_count, _colorful.none); } \
     }
 
