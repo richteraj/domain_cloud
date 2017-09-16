@@ -60,7 +60,7 @@ static struct _colorful_s {
 
 #define cmt_error(msg, ...) { \
     fprintf (stderr, \
-        "%s:%d: %s %sfailed%s: \n >>>\t%s" #msg, \
+        "%s:%d: %s: %sfailed%s: \n >>>\t%s" #msg, \
         __FILE__, __LINE__, __func__, \
         _colorful.cyan, _colorful.none,  _colorful.brown, ##__VA_ARGS__); \
     fprintf (stderr, "%s\n", _colorful.none); \
@@ -81,22 +81,23 @@ static struct _colorful_s {
         cmt_error ("%s", test##_result); \
         ++tests_failed; } \
     else { \
-        fprintf (stderr, #test " %spassed%s.\n", _colorful.green, _colorful.none); } \
+        fprintf (stderr, #test ": %spassed%s.\n", _colorful.green, _colorful.none); } \
 }
 
 #define CMT_RUN_TESTS(tests_wrapper) \
-    int main (int argc, char *argv[]) { \
-        /* Suppress parameter unused warning */ \
-        assert (argc > 0); \
+    int main () { \
         tests_failed = 0; \
         tests_count = 0; \
-        fprintf (stderr, "%s------ RUNNING: %s%s\n", _colorful.blue, argv[0], _colorful.none); \
+        fprintf (stderr, "%s------ RUNNING: %s%s\n", \
+            _colorful.blue, program_invocation_short_name, _colorful.none); \
         tests_wrapper (); \
-        fprintf (stderr, "%s---------------------%s\n", _colorful.blue, _colorful.none); \
+        fprintf (stderr, "%s------ FINISHED: %s%s\n", \
+            _colorful.blue, program_invocation_short_name, _colorful.none); \
         if (tests_count != 0 && tests_failed != 0) { \
-            error (EXIT_FAILURE, 0, \
-                "%s%d of %d tests did NOT pass.%s\n", \
-                _colorful.cyan, tests_failed, tests_count, _colorful.none); } \
+            fprintf (stderr, \
+                "%s------ %d of %d tests did NOT pass.%s\n", \
+                _colorful.cyan, tests_failed, tests_count, _colorful.none); \
+            exit (EXIT_FAILURE); } \
         else { \
             fprintf (stderr, "%s------ All %d tests passed.%s\n", \
                 _colorful.green, tests_count, _colorful.none); } \
