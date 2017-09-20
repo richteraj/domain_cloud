@@ -1,13 +1,9 @@
-# TODO Make relative `Project-*` etc. to use as a sub-project
-include_directories (${CMAKE_BINARY_DIR}/src ${CMAKE_SOURCE_DIR}/src)
-# TODO Keep if tests library necessary
-# add_library (testutils SHARED testutils.c)
-
 file (GLOB srcs test_*.c)
 foreach (test_source IN LISTS srcs)
     get_filename_component (test_target ${test_source} NAME_WE)
     add_executable (${test_target} ${test_source})
-    # TODO Add testutils lib if present
+    target_include_directories (${test_target} PRIVATE ${src_DIR})
+    target_compile_definitions (${test_target} PRIVATE "-D_GNU_SOURCE")
     target_link_libraries (${test_target} domaincloudlib)
     add_test (NAME ${test_target} COMMAND ${test_target})
 endforeach (test_source)
@@ -19,7 +15,7 @@ foreach (test_sh_script IN LISTS srcs)
     get_filename_component (test_target ${test_sh_script} NAME_WE)
     add_test (NAME ${test_target}
         COMMAND sh ${test_sh_script} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-endforeach (test_source)
+endforeach (test_sh_script)
 
 # CMakeLists.txt - CMake tests files
 # Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>

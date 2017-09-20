@@ -2,6 +2,10 @@
  * Generate a word cloud from source files and show the domain as
  * expressed by the code. */
 
+#if defined (HAVE_CONFIG_H) && HAVE_CONFIG_H
+    #include "config.h"
+#endif
+
 #include <ctype.h>
 #include <errno.h>
 #include <error.h>
