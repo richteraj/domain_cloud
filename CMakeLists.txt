@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.0)
 set (CMAKE_BUILD_TYPE Debug CACHE STRING
     "Debug, Release, RelWithDebInfo or MinSizeRel")
 
-project (domain_cloud VERSION 0.1.2 LANGUAGES C)
+project (domain_cloud VERSION 0.1.3 LANGUAGES C)
 set (PROJECT_AUTHORS "A. Johannes RICHTER")
 set (PROJECT_COPY_YEARS "2017")
 
@@ -17,7 +17,7 @@ set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${lib_DIR})
 
 include (CTest)
 
-set (CMAKE_C_STANDARD 11)
+set (CMAKE_C_STANDARD 99)
 set (CMAKE_C_STANDARD_REQUIRED ON)
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -O3")
@@ -30,7 +30,6 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL GNU)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-variadic-macros")
     set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wformat=2 -Og")
 endif ()
-add_definitions (-D_GNU_SOURCE)
 set (CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 

@@ -5,10 +5,6 @@
 #ifndef DOMAINCLOUD_H_
 #define DOMAINCLOUD_H_
 
-#if defined (HAVE_CONFIG_H) && HAVE_CONFIG_H
-# include "config.h"
-#endif
-
 #include <stdio.h>
 
 void print_version (FILE *ostr);

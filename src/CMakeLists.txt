@@ -1,28 +1,26 @@
 configure_file (
-    ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    "config.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/config.h"
     ESCAPE_QUOTES @ONLY)
 
-add_custom_target (config_h
-    COMMENT "Updating config.h"
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in)
+add_executable (domaincloud
+    "domaincloud.c" "${CMAKE_CURRENT_BINARY_DIR}/config.h")
+target_include_directories (domaincloud
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_compile_definitions (domaincloud
+    PRIVATE "-DHAVE_CONFIG_H=1" "-D_GNU_SOURCE")
 
-include_directories (${CMAKE_CURRENT_BINARY_DIR})
-add_definitions (-DHAVE_CONFIG_H=1)
-
-add_executable (domaincloud domaincloud.c)
-add_dependencies (domaincloud config_h)
-
-# Gather sources into a lib for testing purposes
-file (GLOB srcs *.c)
-add_library (domaincloudlib SHARED ${srcs})
-add_dependencies (domaincloudlib config_h)
+add_library (domaincloudlib SHARED domaincloud)
+target_include_directories (domaincloudlib
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_compile_definitions (domaincloudlib
+    PRIVATE "-DHAVE_CONFIG_H=1" "-D_GNU_SOURCE")
 
 install(
     TARGETS domaincloud
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib/static)
+    ARCHIVE DESTINATION lib)
 
 # CMakeLists.txt - CMake source files
 # Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>

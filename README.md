@@ -1,6 +1,11 @@
 Domain Cloud
 ========================================================================
 
+[![Travis CI status][travis_img]][travis_link]
+
+[travis_img]: https://travis-ci.org/richteraj/domain_cloud.svg?branch=master
+[travis_link]: https://travis-ci.org/richteraj/domain_cloud
+
 Generate a word cloud from source files and show the domain as
 expressed by the code.
 
@@ -33,9 +38,9 @@ Installation
 
 Execute the following commands:
 
-    $ ./configure
-    $ make
-    $ sudo make install
+    ./configure
+    make
+    sudo make install
 
 The project build is directed by CMake.  So the `configure` script simply
 creates an empty `build` (or the name in the `BUILD_DIR` environment variable)
@@ -44,11 +49,11 @@ generates a Makefile which forwards the targets into the build dir.
 
 To build directly with CMake use:
 
-    $ mkdir build-dir
-    $ cd build-dir
-    $ cmake .. -DCMAKE_BUILD_TYPE=Release
-    $ cmake --build .
-    $ sudo cmake --build . --target install
+    mkdir build-dir
+    cd build-dir
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    cmake --build .
+    sudo cmake --build . --target install
 
 Generate Doxygen documentation with `make doc` and run tests with `make test`.
 

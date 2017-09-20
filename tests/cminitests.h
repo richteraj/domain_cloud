@@ -1,8 +1,5 @@
 #undef NDEBUG
 
-#ifndef _GNU_SOURCE
-    #define _GNU_SOURCE
-#endif /* not _GNU_SOURCE */
 #ifndef COLOR_MODE
     #define COLOR_MODE 1
 #endif /* not COLOR_MODE */
@@ -58,6 +55,18 @@ static struct _colorful_s {
 #endif
 };
 
+#ifdef _GNU_SOURCE
+    #define set_short_name(long_name) /* NULL */
+#else
+    extern char const *program_invocation_short_name;
+    char const *program_invocation_short_name = NULL;
+    void set_short_name(char const *long_name)
+    {
+        char const *last_slash = strrchr (long_name, '/');
+        program_invocation_short_name = last_slash ? last_slash + 0 : long_name;
+    }
+#endif /* not _GNU_SOURCE */
+
 #define cmt_error(msg, ...) { \
     fprintf (stderr, \
         "%s:%d: %s: %sfailed%s: \n >>>\t%s" #msg, \
@@ -85,7 +94,10 @@ static struct _colorful_s {
 }
 
 #define CMT_RUN_TESTS(tests_wrapper) \
-    int main () { \
+    int main (int argc, char **argv) { \
+        /* Suppress compiler warning: unused arguments */ \
+        assert (argc > 0 && argv); \
+        set_short_name (argv[0]); \
         tests_failed = 0; \
         tests_count = 0; \
         fprintf (stderr, "%s------ RUNNING: %s%s\n", \
