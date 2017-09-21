@@ -8,11 +8,11 @@
 #define CMINITESTS_H_
 
 #include <assert.h>
-#include <stdbool.h>
-#include <stdlib.h>
 #include <errno.h>
 #include <error.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define cmt_set_up()
@@ -36,8 +36,7 @@ static struct _colorful_s {
     const char *red;
     const char *brown;
     const char *cyan;
-} _colorful =
-{
+} _colorful = {
 #if COLOR_MODE
     .none = "\033[0m",
     .blue = "\033[0;34m",
@@ -58,9 +57,9 @@ static struct _colorful_s {
 #ifdef _GNU_SOURCE
     #define set_short_name(long_name) /* NULL */
 #else
-    extern char const *program_invocation_short_name;
-    char const *program_invocation_short_name = NULL;
-    void set_short_name(char const *long_name)
+    static char const *program_invocation_short_name = NULL;
+    void
+    set_short_name(char const *long_name)
     {
         char const *last_slash = strrchr (long_name, '/');
         program_invocation_short_name = last_slash ? last_slash + 0 : long_name;
@@ -207,4 +206,3 @@ int tests_failed;
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-

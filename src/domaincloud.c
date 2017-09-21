@@ -36,9 +36,11 @@ struct cli_options
     bool substitute_only;
 };
 
-static void parse_cli_options (char *argv[], int argc, struct cli_options *options);
+static void
+parse_cli_options (char *argv[], int argc, struct cli_options *options);
 static void process_input_file (const char *input_file, FILE *ostr);
-static void generate_word_cloud (const char *input_file, const char *output_file);
+static void
+generate_word_cloud (const char *input_file, const char *output_file);
 
 int
 main (int argc, char *argv[])
@@ -84,44 +86,43 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
 
         static struct option long_options[] = {
             {"version", no_argument, 0, 'V'},
-            {"help",    no_argument, 0, 'h'},
+            {"help", no_argument, 0, 'h'},
             {"substitute-only", no_argument, 0, 'S'},
-            {"output",  required_argument, 0, 'o'},
-            {0, 0, 0, 0}
-        };
+            {"output", required_argument, 0, 'o'},
+            {0, 0, 0, 0}};
 
-        int choice = getopt_long (
-            argc, argv, "VhSo:", long_options, &option_index);
+        int choice =
+            getopt_long (argc, argv, "VhSo:", long_options, &option_index);
 
         if (choice == -1)
             break;
 
         switch (choice)
         {
-            case 'V':
-                print_version (stdout);
-                exit (EXIT_SUCCESS);
+        case 'V':
+            print_version (stdout);
+            exit (EXIT_SUCCESS);
 
-            case 'h':
-                print_usage (stdout);
-                exit (EXIT_SUCCESS);
+        case 'h':
+            print_usage (stdout);
+            exit (EXIT_SUCCESS);
 
-            case 'o':
-                options->output_file = optarg;
-                break;
+        case 'o':
+            options->output_file = optarg;
+            break;
 
-            case 'S':
-                options->substitute_only = true;
-                break;
+        case 'S':
+            options->substitute_only = true;
+            break;
 
-            case '?':
-                /* getopt_long will have already printed an error */
-                print_usage (stderr);
-                exit (EXIT_FAILURE);
+        case '?':
+            /* getopt_long will have already printed an error */
+            print_usage (stderr);
+            exit (EXIT_FAILURE);
 
-            default:
-                fprintf (
-                    stderr, "?? getopt returned character code %#x ??\n", choice);
+        default:
+            fprintf (
+                stderr, "?? getopt returned character code %#x ??\n", choice);
         }
     }
 
@@ -149,9 +150,8 @@ generate_word_cloud (const char *input_file, const char *output_file)
 {
     char *cmd;
     int length = asprintf (
-        &cmd,
-        "wordcloud_cli.py --text '%s' --imagefile '%s' "
-        "--width=1500 --height=1000",
+        &cmd, "wordcloud_cli.py --text '%s' --imagefile '%s' "
+              "--width=1500 --height=1000",
         input_file, output_file);
     if (length < 0)
         error (EXIT_FAILURE, 0, "Memory allocation error");
@@ -377,4 +377,3 @@ remove_clutter (FILE *istr, FILE *ostr)
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
