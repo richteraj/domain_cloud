@@ -15,11 +15,12 @@ generator.  When Looking at this word cloud it becomes obvious whether the
 program is written in the language of the domain or not.
 
 This C program executes the first step and calls the external Python program
-[word_cloud](https://github.com/amueller/word_cloud) to generate the
-picture.
+[word_cloud](https://github.com/amueller/word_cloud) to generate the picture.
 
 The domain of this program is
+
 ![domaincloud word cloud picture](doc/domaincloud_wc.png)
+
 ...stream manipulation with curious `cur` and some options.
 
 Prerequisites
