@@ -168,8 +168,10 @@ static void
 generate_word_cloud (const char *input_file, const char *output_file)
 {
     char *cmd;
+    // Since wordcloud_cli.py also considers adjacent words as one word, we
+    // shuffle before giving it to the program.
     int length = asprintf (
-        &cmd, "wordcloud_cli.py --text '%s' --imagefile '%s' "
+        &cmd, "shuf '%s' | wordcloud_cli.py --text - --imagefile '%s' "
               "--width=1500 --height=1000",
         input_file, output_file);
     if (length < 0)
