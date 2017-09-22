@@ -60,6 +60,24 @@ cat "$output_file" | grep -q "some_words"
 test_exit=`expr $res + $?`
 evaluate_test
 
+test_case="Substitute sorts the output and gives the count"
+echo "001*a1+b-a1%a2#_end" >"$input_file"
+: > "$output_file"
+"$prog" -S -o "$output_file" "$input_file"
+res=$?
+echo `cat "$output_file"` | grep -q "^_end \[1\] a1 \[2\] a2 \[1\]"
+test_exit=`expr $res + $?`
+evaluate_test
+
+test_case="Raw dump prints every word the number of occurrences"
+echo "a1[b}a1\$a2;_end" >"$input_file"
+: > "$output_file"
+"$prog" -r -o "$output_file" "$input_file"
+res=$?
+echo `cat "$output_file"` | grep -q "_end a1 a1 a2 b"
+test_exit=`expr $res + $?`
+evaluate_test
+
 # TODO Create a mock for word_cloud_cli.py: Tests without -S options require
 # this program which also needs a lot of time
 

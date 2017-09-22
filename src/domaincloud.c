@@ -34,6 +34,7 @@ struct cli_options
     const char *output_file;
     int num_arguments;
     bool substitute_only;
+    bool raw_dump;
 };
 
 static void
@@ -72,7 +73,7 @@ main (int argc, char *argv[])
     for (int input_file = 0; input_file < options.num_arguments; ++input_file)
         process_input_file (options.arguments[input_file], result_words);
 
-    if (options.substitute_only)
+    if (options.substitute_only && !options.raw_dump)
         print_words_with_freq (output_stream, result_words);
     else
         print_words_raw (output_stream, result_words);
@@ -101,12 +102,13 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
         static struct option long_options[] = {
             {"version", no_argument, 0, 'V'},
             {"help", no_argument, 0, 'h'},
+            {"raw-dump", no_argument, 0, 'r'},
             {"substitute-only", no_argument, 0, 'S'},
             {"output", required_argument, 0, 'o'},
             {0, 0, 0, 0}};
 
         int choice =
-            getopt_long (argc, argv, "VhSo:", long_options, &option_index);
+            getopt_long (argc, argv, "VhrSo:", long_options, &option_index);
 
         if (choice == -1)
             break;
@@ -125,6 +127,9 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
             options->output_file = optarg;
             break;
 
+        case 'r':
+            options->raw_dump = true;
+            /* [[falltrough]] */
         case 'S':
             options->substitute_only = true;
             break;
@@ -205,10 +210,13 @@ print_usage (FILE *ostr)
 "  -V, --version       Output version information and exit.\n"
 "  -o FILE, --output=FILE\n"
 "                      Save output int file FILE.\n"
+"  -r, --raw-dump      Similar to -S but print every word the number of times\n"
+"                      it was counted.\n"
 "  -S, --substitute-only\n"
 "                      Remove comments and string literals only and don't\n"
-"                      generate an image. If no -o Option is present print\n"
-"                      to stdout.\n");
+"                      generate an image.  Every word will be printed on a\n"
+"                      separate line following the word's count.\n"
+"                      If no -o Option is present print to stdout.\n");
 }
 
 /** Try to open \a input_file and use this together with \a ostr as arguments
