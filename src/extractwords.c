@@ -189,7 +189,10 @@ wfreq_init (struct Word_frequency_s **words)
         return 0;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 static void _tree_free_fn_nop (void *node) {}
+#pragma GCC diagnostic pop
 
 void
 wfreq_destroy (struct Word_frequency_s *words)
@@ -266,6 +269,9 @@ count_words (FILE *istr, struct Word_frequency_s *result_words)
         return 0;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 static FILE *_current_ostr = NULL;
 
 static void
@@ -292,6 +298,8 @@ print_action_function_raw (
         for (int i = 0; i < (*word)->count; ++i)
             fprintf (_current_ostr, "%s\n", (*word)->name);
 }
+
+#pragma GCC diagnostic pop
 
 void
 print_words_alpha_sorted (FILE *ostr, struct Word_frequency_s *words)
