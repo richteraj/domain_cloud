@@ -8,6 +8,11 @@
 
 int remove_clutter (FILE *istr, FILE *ostr);
 
+struct Word_frequency_s;
+
+int wfreq_init (struct Word_frequency_s **words);
+void wfreq_destroy (struct Word_frequency_s *words);
+
 #endif /* not EXTRACTWORDS_H_ */
 
 /* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>

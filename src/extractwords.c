@@ -3,7 +3,13 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <obstack.h>
+#include <search.h>
+#include <stdlib.h>
 #include <stdbool.h>
+
+#define obstack_chunk_alloc malloc
+#define obstack_chunk_free free
 
 #include "extractwords.h"
 
@@ -142,6 +148,51 @@ remove_clutter (FILE *istr, FILE *ostr)
         return 0;
 }
 
+struct Word_frequency_s
+{
+    void *tree_root;
+    struct obstack word_stack;
+};
+
+struct Word_s
+{
+    int count;
+    char *name;
+};
+
+static int
+word_compare (struct Word_s *w1, struct Word_s *w2)
+{
+    return strcmp (w1->name, w2->name);
+}
+
+static comparison_fn_t word_cmp_void = (comparison_fn_t) word_compare;
+
+int
+wfreq_init (struct Word_frequency_s **words)
+{
+    if (*words)
+        return EEXIST;
+
+    *words = calloc (1, sizeof (struct Word_frequency_s));
+    if (!*words)
+        return ENOMEM;
+    else if (!obstack_init (&(*words)->word_stack))
+        return ENOMEM;
+    else
+        return 0;
+}
+
+void
+wfreq_destroy (struct Word_frequency_s *words)
+{
+    if (!words)
+        return;
+
+    tdestroy (words->tree_root, (__free_fn_t) NULL);
+    obstack_free (&words->word_stack, NULL);
+    free (words);
+}
 
 /* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 
