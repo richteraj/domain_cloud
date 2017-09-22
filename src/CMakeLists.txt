@@ -4,17 +4,16 @@ configure_file (
     ESCAPE_QUOTES @ONLY)
 
 add_executable (domaincloud
-    "domaincloud.c" "${CMAKE_CURRENT_BINARY_DIR}/config.h")
+    "domaincloud.c" "extractwords.c"
+    "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 target_include_directories (domaincloud
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_definitions (domaincloud
     PRIVATE "-DHAVE_CONFIG_H=1" "-D_GNU_SOURCE")
 
-add_library (domaincloudlib SHARED domaincloud)
-target_include_directories (domaincloudlib
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+add_library (domaincloudlib STATIC "extractwords.c")
 target_compile_definitions (domaincloudlib
-    PRIVATE "-DHAVE_CONFIG_H=1" "-D_GNU_SOURCE")
+    PRIVATE "-D_GNU_SOURCE")
 
 install(
     TARGETS domaincloud

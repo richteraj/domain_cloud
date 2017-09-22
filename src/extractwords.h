@@ -1,16 +1,14 @@
 /** \file
- * Generate a word cloud from source files and show the domain as
- * expressed by the code. */
+ * Parse words from an input stream. */
 
-#ifndef DOMAINCLOUD_H_
-#define DOMAINCLOUD_H_
+#ifndef EXTRACTWORDS_H_
+#define EXTRACTWORDS_H_
 
 #include <stdio.h>
 
-void print_version (FILE *ostr);
-void print_usage (FILE *ostr);
+int remove_clutter (FILE *istr, FILE *ostr);
 
-#endif /* not DOMAINCLOUD_H_ */
+#endif /* not EXTRACTWORDS_H_ */
 
 /* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
 

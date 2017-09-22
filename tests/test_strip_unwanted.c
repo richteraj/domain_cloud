@@ -2,7 +2,7 @@
  * Tests for stripping comments from sources etc. */
 #include <string.h>
 
-#include "domaincloud.h"
+#include "extractwords.h"
 #include "cminitests.h"
 
 /** \struct rm_clutter_res
