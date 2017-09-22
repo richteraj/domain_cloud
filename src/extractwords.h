@@ -4,6 +4,8 @@
 #ifndef EXTRACTWORDS_H_
 #define EXTRACTWORDS_H_
 
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 int remove_clutter (FILE *istr, FILE *ostr);
@@ -12,6 +14,17 @@ struct Word_frequency_s;
 
 int wfreq_init (struct Word_frequency_s **words);
 void wfreq_destroy (struct Word_frequency_s *words);
+
+int count_words (FILE *istr, struct Word_frequency_s *result_words);
+void print_words_alpha_sorted (FILE *ostr, struct Word_frequency_s *words);
+void print_words_with_freq (FILE *ostr, struct Word_frequency_s *words);
+void print_words_raw (FILE *ostr, struct Word_frequency_s *words);
+
+inline bool
+is_identifier (int chr)
+{
+    return isalpha (chr) || chr == '.' || chr == '_';
+}
 
 #endif /* not EXTRACTWORDS_H_ */
 

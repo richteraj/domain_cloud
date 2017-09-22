@@ -3,6 +3,34 @@
 #include "extractwords.h"
 #include "cminitests.h"
 
+typedef struct Tree_output_res_s
+{
+    char *output;
+    int count_words_res;
+} Tree_output_res;
+
+Tree_output_res
+create_and_output_words (char *input)
+{
+    FILE *is = fmemopen (input, strlen (input), "r");
+    char *output = NULL;
+    size_t output_len = 0;
+    FILE *os = open_memstream (&output, &output_len);
+
+    struct Word_frequency_s *words = NULL;
+    wfreq_init (&words);
+
+    Tree_output_res tree_out;
+    tree_out.count_words_res = count_words (is, words);
+    print_words_alpha_sorted (os, words);
+    fclose (os);
+    tree_out.output = output;
+
+    wfreq_destroy (words);
+    fclose (is);
+    return tree_out;
+}
+
 char *
 A_newly_created_Word_frequency_s_is_safely_destroyed (void)
 {
@@ -22,12 +50,59 @@ An_already_existing_Word_frequency_s_is_not_initialized_again (void)
     return NULL;
 }
 
+void *
+Symbols_except_dot_do_not_count_as_words ()
+{
+    char *input = "{]}/()/%&$#+// no words";
+    char *expected_output = "";
+
+    Tree_output_res res = create_and_output_words (input);
+
+    require (!res.count_words_res,)
+    require_streq (res.output, expected_output,)
+    free (res.output);
+
+    input = "a{]}/()/%&$#+// no words";
+    expected_output = "a\n";
+    res = create_and_output_words (input);
+
+    require (!res.count_words_res,)
+    require_streq (res.output, expected_output,)
+    free (res.output);
+
+    input = "a{]}/()/*b*/aa%&$#+// two words";
+    expected_output = "a\naa\n";
+    res = create_and_output_words (input);
+
+    require (!res.count_words_res,)
+    require_streq (res.output, expected_output,)
+    free (res.output);
+
+    return NULL;
+}
+
+void *
+Count_increases_for_the_same_strings ()
+{
+    char *input = "a a b a.a a_a";
+    char *expected_output = "a\na.a\na_a\nb\n";
+
+    Tree_output_res res = create_and_output_words (input);
+
+    require (!res.count_words_res,)
+    require_streq (res.output, expected_output,)
+    free (res.output);
+    return NULL;
+}
+
 void
 all_tests (void)
 {
     CMT_TEST_CASE (A_newly_created_Word_frequency_s_is_safely_destroyed,)
     CMT_TEST_CASE (
         An_already_existing_Word_frequency_s_is_not_initialized_again,)
+    CMT_TEST_CASE (Symbols_except_dot_do_not_count_as_words,)
+    CMT_TEST_CASE (Count_increases_for_the_same_strings,)
 }
 
 CMT_RUN_TESTS (all_tests)

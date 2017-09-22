@@ -47,16 +47,16 @@ test_exit=$?
 evaluate_test
 
 test_case="Program recognizes '-' as standard in/output"
-echo "/* skip */some words" | "$prog" -S -o - - | grep -q "some words"
+echo "/* skip */some_words" | "$prog" -S -o - - | grep -q "some_words"
 test_exit=$?
 evaluate_test
 
 test_case="Program writes output to given file"
-echo "some words" >"$input_file"
+echo "some_words" >"$input_file"
 : > "$output_file"
 "$prog" -S -o "$output_file" "$input_file"
 res=$?
-cat "$output_file" | grep -q "some words"
+cat "$output_file" | grep -q "some_words"
 test_exit=`expr $res + $?`
 evaluate_test
 

@@ -38,7 +38,8 @@ struct cli_options
 
 static void
 parse_cli_options (char *argv[], int argc, struct cli_options *options);
-static void process_input_file (const char *input_file, FILE *ostr);
+static void process_input_file (
+    const char *input_file, struct Word_frequency_s *result_words);
 static void
 generate_word_cloud (const char *input_file, const char *output_file);
 
@@ -64,14 +65,27 @@ main (int argc, char *argv[])
             EXIT_FAILURE, errno,
             "Can't open '%s' for writing!", options.output_file);
 
+    struct Word_frequency_s *result_words = NULL;
+    if (wfreq_init (&result_words))
+        error (EXIT_FAILURE, errno, "Memory error");
+
     for (int input_file = 0; input_file < options.num_arguments; ++input_file)
-        process_input_file (options.arguments[input_file], output_stream);
+        process_input_file (options.arguments[input_file], result_words);
+
+    if (options.substitute_only)
+        print_words_with_freq (output_stream, result_words);
+    else
+        print_words_raw (output_stream, result_words);
 
     if (!to_stdout)
         fclose (output_stream);
 
     if (!options.substitute_only)
         generate_word_cloud (tmp_name, options.output_file);
+
+#ifndef NDEBUG
+    wfreq_destroy (result_words);
+#endif /* not NDEBUG */
 }
 
 /** Parse CLI options and put results into \a options.  Will exit on error. */
@@ -209,7 +223,8 @@ print_usage (FILE *ostr)
  *      to be opened for writing.
  */
 static void
-process_input_file (const char *input_file, FILE *ostr)
+process_input_file (
+    const char *input_file, struct Word_frequency_s *result_words)
 {
     bool from_stdin = !strcmp (input_file, "-");
     FILE *istr = from_stdin ? stdin : fopen (input_file, "r");
@@ -219,7 +234,7 @@ process_input_file (const char *input_file, FILE *ostr)
         return;
     }
 
-    int res = remove_clutter (istr, ostr);
+    int res = count_words (istr, result_words);
     if (res)
         error (0, res, "Error during processing of '%s'!", input_file);
 

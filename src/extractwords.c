@@ -1,12 +1,10 @@
 /** \file
  * Parse words from an input stream. */
 
-#include <ctype.h>
 #include <errno.h>
 #include <obstack.h>
 #include <search.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #define obstack_chunk_alloc malloc
 #define obstack_chunk_free free
@@ -39,7 +37,7 @@ skip_block_comments (FILE *istr)
  *      for reading.
  */
 static void
-skip_delimiter_escape_aware (int delim, FILE *istr)
+skip_delimiter_escape_aware (char const *delims, FILE *istr)
 {
     int cur;
     bool ignore_next = false;
@@ -49,7 +47,7 @@ skip_delimiter_escape_aware (int delim, FILE *istr)
             ignore_next = false;
         else if (cur == '\\')
             ignore_next = true;
-        else if (cur == delim)
+        else if (strchr (delims, cur) != NULL)
             break;
     }
 }
@@ -95,20 +93,22 @@ skip_white_space (FILE *istr, FILE *ostr)
  *    \li at the position of the start of the function call (not a comment) or
  *    \li at \a EOF (comment "terminated" by \a EOF).
  */
-static void
-try_skip_comments (FILE *istr, FILE *ostr)
+static int
+try_skip_comments (FILE *istr)
 {
     int next = getc (istr);
 
     if (next == '/')
-        skip_delimiter_escape_aware ('\n', istr);
+        skip_delimiter_escape_aware ("\n", istr);
     else if (next == '*')
         skip_block_comments (istr);
     else
     {
-        putc ('/', ostr);
         ungetc (next, istr);
+        return '/';
     }
+
+    return EOF;
 }
 
 /** Copy content of \a istr to \a ostr while skipping comments,
@@ -131,9 +131,15 @@ remove_clutter (FILE *istr, FILE *ostr)
     while ((cur = getc (istr)) != EOF && !ferror (ostr))
     {
         if (cur == '/')
-            try_skip_comments (istr, ostr);
-        else if (cur == '"' || cur == '\'')
-            skip_delimiter_escape_aware (cur, istr);
+        {
+            int push_back = try_skip_comments (istr);
+            if (push_back != EOF)
+                putc (push_back, ostr);
+        }
+        else if (cur == '"')
+            skip_delimiter_escape_aware ("\"", istr);
+        else if (cur == '\'')
+            skip_delimiter_escape_aware ("'", istr);
         else if (isspace (cur))
             skip_white_space (istr, ostr);
         else
@@ -183,15 +189,133 @@ wfreq_init (struct Word_frequency_s **words)
         return 0;
 }
 
+static void _tree_free_fn_nop (void *node) {}
+
 void
 wfreq_destroy (struct Word_frequency_s *words)
 {
     if (!words)
         return;
 
-    tdestroy (words->tree_root, (__free_fn_t) NULL);
+    tdestroy (words->tree_root, _tree_free_fn_nop);
     obstack_free (&words->word_stack, NULL);
     free (words);
+}
+
+enum Word_position {Word_begin, Word_end, Not_word};
+
+static void
+add_word_to_tree (struct Word_frequency_s *result_words)
+{
+    obstack_1grow (&result_words->word_stack, '\0');
+    char *name = obstack_finish (&result_words->word_stack);
+
+    struct Word_s *new_word =
+        obstack_alloc (&result_words->word_stack, sizeof (struct Word_s));
+    new_word->name = name;
+    new_word->count = 0;
+
+    struct Word_s **word_in_tree =
+        tsearch (new_word, &result_words->tree_root, word_cmp_void);
+    if (new_word != *word_in_tree)
+        obstack_free (&result_words->word_stack, new_word);
+
+    ++(*word_in_tree)->count;
+}
+
+int
+count_words (FILE *istr, struct Word_frequency_s *result_words)
+{
+    enum Word_position in_word = Not_word;
+
+    while (!feof (istr) && !ferror (istr))
+    {
+        int cur = getc (istr);
+
+        if (cur == '/')
+            try_skip_comments (istr);
+        else if (cur == '"')
+            skip_delimiter_escape_aware ("\"", istr);
+        else if (cur == '\'')
+            skip_delimiter_escape_aware ("'", istr);
+        else if (isdigit (cur))
+        {
+            if (in_word == Word_begin)
+                obstack_1grow (&result_words->word_stack, cur);
+        }
+        else if (is_identifier (cur))
+        {
+            in_word = Word_begin;
+            obstack_1grow (&result_words->word_stack, cur);
+        }
+
+        if (!isdigit (cur) && !is_identifier (cur))
+            if (in_word == Word_begin)
+                in_word = Word_end;
+
+        if (in_word == Word_end)
+        {
+            add_word_to_tree (result_words);
+            in_word = Not_word;
+        }
+    }
+
+    if (ferror (istr))
+        return errno;
+    else
+        return 0;
+}
+
+static FILE *_current_ostr = NULL;
+
+static void
+print_action_function_alpha_sorted (
+    struct Word_s const **word, VISIT const which, int const depth)
+{
+    if (which == leaf || which == postorder)
+        fprintf (_current_ostr, "%s\n", (*word)->name);
+}
+
+static void
+print_action_function_with_freq (
+    struct Word_s const **word, VISIT const which, int const depth)
+{
+    if (which == leaf || which == postorder)
+        fprintf (_current_ostr, "%s [%d]\n", (*word)->name, (*word)->count);
+}
+
+static void
+print_action_function_raw (
+    struct Word_s const **word, VISIT const which, int const depth)
+{
+    if (which == leaf || which == postorder)
+        for (int i = 0; i < (*word)->count; ++i)
+            fprintf (_current_ostr, "%s\n", (*word)->name);
+}
+
+void
+print_words_alpha_sorted (FILE *ostr, struct Word_frequency_s *words)
+{
+    _current_ostr = ostr;
+    twalk (
+        words->tree_root, (__action_fn_t) print_action_function_alpha_sorted);
+    _current_ostr = NULL;
+}
+
+void
+print_words_with_freq (FILE *ostr, struct Word_frequency_s *words)
+{
+    _current_ostr = ostr;
+    twalk (words->tree_root, (__action_fn_t) print_action_function_with_freq);
+    _current_ostr = NULL;
+}
+
+void
+print_words_raw (FILE *ostr, struct Word_frequency_s *words)
+{
+    _current_ostr = ostr;
+    twalk (words->tree_root, (__action_fn_t) print_action_function_raw);
+    _current_ostr = NULL;
 }
 
 /* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
