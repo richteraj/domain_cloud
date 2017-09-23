@@ -1,6 +1,6 @@
 /** \file
- * Generate a word cloud from source files and show the domain as
- * expressed by the code. */
+ * Generate a word cloud from source files and show the domain as expressed by
+ * the code.  */
 
 #if defined (HAVE_CONFIG_H) && HAVE_CONFIG_H
     #include "config.h"
@@ -16,24 +16,18 @@
 #include "domaincloud.h"
 #include "extractwords.h"
 
-/** \struct cli_options
- *  \brief Flags and arguments to be set by \ref parse_cli_options.
- *
- *  \var const char *cli_options::output_file
- *      Where to put the final result.
- *  \var bool cli_options::substitute_only
- *      Strip unwanted clutter from source only.
- *  \var char **cli_options::arguments
- *      The part of \a argv where the arguments begin.
- *  \var int cli_options::num_arguments
- *      Number of arguments.
- */
+/** Flags and arguments to be set by \ref parse_cli_options.  */
 struct cli_options
 {
+    /** The part of \a argv where the arguments begin.  */
     char **arguments;
+    /** Where to put the final result.  */
     const char *output_file;
+    /** Number of arguments.  */
     int num_arguments;
+    /** Strip unwanted clutter from source only.  */
     bool substitute_only;
+    /** Substitute only and print results raw.  */
     bool raw_dump;
 };
 
@@ -89,7 +83,11 @@ main (int argc, char *argv[])
 #endif /* not NDEBUG */
 }
 
-/** Parse CLI options and put results into \a options.  Will exit on error. */
+/** Parse CLI options and put results into \a options.  Will exit on error.
+ * \param argv Like main argv.
+ * \param argc Like main argc.
+ * \param options Write parsed options into this.  Defaults should already
+ * be present.  */
 static void
 parse_cli_options (char *argv[], int argc, struct cli_options *options)
 {
@@ -158,12 +156,14 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
     }
 }
 
-/** Generate a word cloud from \a input_file and save the resulting PNG
- *  image to the file \a output_file.
- *  Using the
- *  <a href="https://github.com/amueller/word_cloud">wordcloud_cli.py</a>
- *  program.  Exit if this program encounters problems.
- */
+/** Generate a word cloud from \a input_file and save the resulting PNG image to
+ * the file \a output_file.  Using the <a
+ * href="https://github.com/amueller/word_cloud">`wordcloud_cli.py`</a> program.
+ * Exit if this program encounters problems.
+ *
+ * \param input_file Pass this file name to `wordcloud_cli.py` as `--text`.
+ * \param output_file Pass this file name to `wordcloud_cli.py` as
+ * `--imagefile`.  */
 static void
 generate_word_cloud (const char *input_file, const char *output_file)
 {
@@ -185,7 +185,9 @@ generate_word_cloud (const char *input_file, const char *output_file)
         error (EXIT_FAILURE, 0, "wordcloud_cli.py error!");
 }
 
-/** Print version information to \a ostr.  */
+/** Print version information to \a ostr.
+ * \param ostr The file handle where to output to.  Has to be opened for
+ * writing.  */
 void
 print_version (FILE *ostr)
 {
@@ -198,7 +200,9 @@ print_version (FILE *ostr)
 "There is NO WARRANTY, to the extent permitted by law.\n");
 }
 
-/** Print usage information to \a ostr.  */
+/** Print usage information to \a ostr.
+ * \param ostr The file handle where to output to.  Has to be opened for
+ * writing.  */
 void
 print_usage (FILE *ostr)
 {
@@ -221,16 +225,15 @@ print_usage (FILE *ostr)
 "                      If no -o Option is present print to stdout.\n");
 }
 
-/** Try to open \a input_file and use this together with \a ostr as arguments
- *  to \ref remove_clutter.
+/** Try to open \a input_file and use this together with \a result_words as
+ * arguments to \ref count_words.
  *
- *  If \a input_file is \c "-", will use \a stdin as input.
- *  Print an error message, if the file can't be opened or if \a remove_clutter
- *  failed.
+ * If \a input_file is `-`, will use \a stdin as input.  Print an error
+ * message, if the file can't be opened or if \a count_words failed.
  *
- *  \param input_file Name of an existing file or \c "-".
- *  \param ostr The file handle where non-skipped text will be appended.  Has
- *      to be opened for writing.
+ * \param input_file Name of an existing file or `-`.
+ * \param result_words An initialized \ref Word_frequency_s variable where the
+ * results will be put.
  */
 static void
 process_input_file (

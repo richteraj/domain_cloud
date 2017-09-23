@@ -1,6 +1,6 @@
 /** \file
- * Generate a word cloud from source files and show the domain as
- * expressed by the code. */
+ * Generate a word cloud from source files and show the domain as expressed by
+ * the code.  */
 
 #ifndef DOMAINCLOUD_H_
 #define DOMAINCLOUD_H_

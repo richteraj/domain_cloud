@@ -1,5 +1,5 @@
 /** \file
- * Parse words from an input stream. */
+ * Parse words from an input stream.  */
 
 #ifndef EXTRACTWORDS_H_
 #define EXTRACTWORDS_H_
@@ -20,6 +20,9 @@ void print_words_alpha_sorted (FILE *ostr, struct Word_frequency_s *words);
 void print_words_with_freq (FILE *ostr, struct Word_frequency_s *words);
 void print_words_raw (FILE *ostr, struct Word_frequency_s *words);
 
+/** Defines the possible first letter of a word.
+ * \param chr Test against this.
+ * \return True if \a chr may start a word.  Else false.  */
 inline bool
 is_identifier (int chr)
 {

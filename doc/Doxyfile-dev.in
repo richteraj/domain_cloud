@@ -11,6 +11,7 @@ EXTRACT_PACKAGE        = YES
 EXTRACT_STATIC         = YES
 HIDE_IN_BODY_DOCS      = YES
 INTERNAL_DOCS          = YES
+SORT_MEMBER_DOCS       = NO
 
 # `QUIET = NO` will mix stdout and stderr, which confuses the quick-fix list
 QUIET                  = YES

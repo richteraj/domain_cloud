@@ -1,14 +1,24 @@
-#include <assert.h>
+/** \file
+ * Tests around \ref count_words.  */
 
 #include "extractwords.h"
 #include "cminitests.h"
 
+/** Bundle the results of \ref count_words.  */
 typedef struct Tree_output_res_s
 {
+    /** The generated output as a string.  Has to be freed.  */
     char *output;
+    /** The return status of \e count_words.  */
     int count_words_res;
 } Tree_output_res;
 
+/** Create a stream from the \a input string, send it to \ref count_words,
+ * capture the \ref Word_frequency_s result and convert it to a string (format
+ * as with \ref print_words_alpha_sorted).
+ *
+ * \param input Input string.
+ * \return Bundled result.  User has to do the cleanup.  */
 Tree_output_res
 create_and_output_words (char *input)
 {

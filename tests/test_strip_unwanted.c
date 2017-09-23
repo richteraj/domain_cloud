@@ -1,24 +1,25 @@
 /** \file
- * Tests for stripping comments from sources etc. */
-#include <string.h>
+ * Tests for stripping comments from sources etc.  */
 
 #include "extractwords.h"
 #include "cminitests.h"
 
-/** \struct rm_clutter_res
- *  Bundle the result of \ref remove_clutter.
- *
- *  \var int rm_clutter_res::res
- *      The return status of \a remove_clutter.
- *  \var char *rm_clutter_res::output
- *      The output that \a remove_clutter generated.  Has to be freed.
- * */
+/** Bundle the result of \ref remove_clutter.  */
 typedef struct
 {
+    /** The return status of \e remove_clutter.  */
     int res;
+    /** The output that \e remove_clutter generated as a string.  Has to be
+     * freed.  */
     char *output;
 } rm_clutter_res;
 
+/** Create a stream from the \a input string, send it to \ref remove_clutter,
+ * capture the result as a string.
+ *
+ * \param input Input string.
+ * \param input_len Length of \a input.
+ * \return Bundled result.  User has to do the cleanup.  */
 rm_clutter_res
 test_remove_clutter (char *input, size_t input_len)
 {
