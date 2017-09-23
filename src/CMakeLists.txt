@@ -4,7 +4,7 @@ configure_file (
     ESCAPE_QUOTES @ONLY)
 
 add_executable (domaincloud
-    "domaincloud.c" "extractwords.c"
+    "domaincloud.c" "extractwords.c" "wordinfo.c"
     "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 target_include_directories (domaincloud
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
@@ -13,9 +13,10 @@ target_compile_definitions (domaincloud
 # Feature c_std_11 only later available
 target_compile_features (domaincloud PRIVATE c_static_assert)
 
-add_library (domaincloudlib STATIC "extractwords.c")
+add_library (domaincloudlib STATIC "extractwords.c" "wordinfo.c")
 target_compile_definitions (domaincloudlib
     PRIVATE "-D_GNU_SOURCE")
+# Feature c_std_11 only later available
 target_compile_features (domaincloudlib PRIVATE c_static_assert)
 
 install(
