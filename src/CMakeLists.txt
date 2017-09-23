@@ -10,10 +10,13 @@ target_include_directories (domaincloud
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_definitions (domaincloud
     PRIVATE "-DHAVE_CONFIG_H=1" "-D_GNU_SOURCE")
+# Feature c_std_11 only later available
+target_compile_features (domaincloud PRIVATE c_static_assert)
 
 add_library (domaincloudlib STATIC "extractwords.c")
 target_compile_definitions (domaincloudlib
     PRIVATE "-D_GNU_SOURCE")
+target_compile_features (domaincloudlib PRIVATE c_static_assert)
 
 install(
     TARGETS domaincloud

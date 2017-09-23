@@ -4,6 +4,9 @@
 #include <errno.h>
 #include <obstack.h>
 #include <search.h>
+#include <stdalign.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 /** Use `malloc` for obstack allocation.  */
@@ -155,23 +158,74 @@ struct Word_frequency_s
     struct obstack word_stack;
 };
 
+enum Word_s_short_string_sizes
+{
+    head_Word_s_string_size = alignof (void *) - alignof (short),
+    tail_Word_s_string_size = alignof (void *),
+    total_Word_s_string_size = head_Word_s_string_size + alignof (void *)
+};
+
 /** One parsed word with the count of occurrences.  */
 struct Word_s
 {
     /** The number of occurrences of \p name.  */
-    int count;
-    /** The parsed word.  */
-    char *name;
+    short count;
+    /** Head of internal string. Doubles as union tag if `short_name[0] == '\0'`
+     * then we have a longer string.  */
+    char short_name[head_Word_s_string_size];
+    union
+    {
+        /** The parsed word.  */
+        char *name;
+        /** Tail of the short string.  */
+        char short_name_tail[tail_Word_s_string_size];
+    };
 };
+
+_Static_assert (
+    offsetof (struct Word_s, short_name) == alignof (short),
+    "Word_s.short_name starts at sizeof(short)");
+_Static_assert (
+    offsetof (struct Word_s, name) == alignof (void *),
+    "Word_s.short_name starts at sizeof(void *)");
+_Static_assert (
+    2 * tail_Word_s_string_size == sizeof (struct Word_s),
+    "Use all the space of Word_s");
+
+bool
+word_store_string (struct Word_s *word, char *str, int len)
+{
+    if (len < total_Word_s_string_size)
+    {
+        memcpy (word->short_name, str, len);
+        word->short_name[len] = '\0';
+        return true;
+    }
+    else
+    {
+        word->short_name[0] = '\0';
+        word->name = str;
+        return false;
+    }
+}
+
+char const *
+word_name (struct Word_s const *word)
+{
+    if (!word->short_name[0])
+        return word->name;
+    else
+        return word->short_name;
+}
 
 /** Comparator for \ref Word_s to use with a tree.
  * \param w1 Left word.
  * \param w2 Right word.
  * \return \a *w1 > \a *w2 with the same semantics as `strcmp`.  */
 static int
-word_compare (struct Word_s *w1, struct Word_s *w2)
+word_compare (struct Word_s const *w1, struct Word_s const *w2)
 {
-    return strcmp (w1->name, w2->name);
+    return strcmp (word_name (w1), word_name (w2));
 }
 
 /** Type erased pointer to \ref word_compare.  */
@@ -240,18 +294,26 @@ enum Word_position {Word_begin, Word_end, Not_word};
 static void
 add_word_to_tree (struct Word_frequency_s *result_words)
 {
+    int name_len = obstack_object_size (&result_words->word_stack);
     obstack_1grow (&result_words->word_stack, '\0');
     char *name = obstack_finish (&result_words->word_stack);
 
-    struct Word_s *new_word =
-        obstack_alloc (&result_words->word_stack, sizeof (struct Word_s));
-    new_word->name = name;
-    new_word->count = 0;
+    struct Word_s new_word = {.count = 0, .name = name};
 
     struct Word_s **word_in_tree =
-        tsearch (new_word, &result_words->tree_root, word_cmp_void);
-    if (new_word != *word_in_tree)
+        tfind (&new_word, &result_words->tree_root, word_cmp_void);
+    if (word_in_tree)
         obstack_free (&result_words->word_stack, name);
+    else
+    {
+        if (word_store_string (&new_word, name, name_len))
+            obstack_free (&result_words->word_stack, name);
+
+        struct Word_s *add_word = obstack_copy (
+            &result_words->word_stack, &new_word, sizeof (struct Word_s));
+        word_in_tree =
+            tsearch (add_word, &result_words->tree_root, word_cmp_void);
+    }
 
     ++(*word_in_tree)->count;
 }
@@ -318,36 +380,38 @@ static FILE *_current_ostr = NULL;
  *
  * \warning Writes to the global \ref _current_ostr stream.
  *
- * \param word The tree node pointing to the current word.
+ * \param word_node The tree node pointing to the current word.
  * \param which The `VISIT` order.
  * \param depth Current tree depth.  Not used.  */
 static void
 print_action_function_alpha_sorted (
-    struct Word_s const **word, VISIT const which, int const depth)
+    struct Word_s const **word_node, VISIT const which, int const depth)
 {
     if (which == leaf || which == postorder)
-        fprintf (_current_ostr, "%s\n", (*word)->name);
+        fprintf (_current_ostr, "%s\n", word_name (*word_node));
 }
 
 /** Action handler for \ref print_words_with_freq.
  * \copydetails print_action_function_alpha_sorted */
 static void
 print_action_function_with_freq (
-    struct Word_s const **word, VISIT const which, int const depth)
+    struct Word_s const **word_node, VISIT const which, int const depth)
 {
     if (which == leaf || which == postorder)
-        fprintf (_current_ostr, "%s [%d]\n", (*word)->name, (*word)->count);
+        fprintf (
+            _current_ostr, "%s [%d]\n", word_name (*word_node),
+            (*word_node)->count);
 }
 
 /** Action handler for \ref print_words_raw.
  * \copydetails print_action_function_alpha_sorted */
 static void
 print_action_function_raw (
-    struct Word_s const **word, VISIT const which, int const depth)
+    struct Word_s const **word_node, VISIT const which, int const depth)
 {
     if (which == leaf || which == postorder)
-        for (int i = 0; i < (*word)->count; ++i)
-            fprintf (_current_ostr, "%s\n", (*word)->name);
+        for (int i = 0; i < (*word_node)->count; ++i)
+            fprintf (_current_ostr, "%s\n", word_name (*word_node));
 }
 
 #pragma GCC diagnostic pop
