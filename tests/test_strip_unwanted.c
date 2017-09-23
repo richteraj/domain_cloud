@@ -12,7 +12,7 @@ typedef struct
     /** The output that \e remove_clutter generated as a string.  Has to be
      * freed.  */
     char *output;
-} rm_clutter_res;
+} Rm_clutter_res;
 
 /** Create a stream from the \a input string, send it to \ref remove_clutter,
  * capture the result as a string.
@@ -20,7 +20,7 @@ typedef struct
  * \param input Input string.
  * \param input_len Length of \a input.
  * \return Bundled result.  User has to do the cleanup.  */
-rm_clutter_res
+Rm_clutter_res
 test_remove_clutter (char *input, size_t input_len)
 {
     FILE *is = fmemopen (input, input_len, "r");
@@ -33,7 +33,7 @@ test_remove_clutter (char *input, size_t input_len)
     fclose (os);
     fclose (is);
 
-    return (rm_clutter_res) {res, output};
+    return (Rm_clutter_res) {res, output};
 }
 
 char *
@@ -43,7 +43,7 @@ Line_comments_including_newline_are_stripped (void)
     size_t input_len = sizeof (input) - 1;
     const char expected_output[] = "line 1 line 2 x / / y == z /";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -60,7 +60,7 @@ Line_comments_terminated_by_eof_are_stripped (void)
     size_t input_len = sizeof (input) - 1;
     const char expected_output[] = "line 1 line 2 x / / y == z ";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -77,7 +77,7 @@ Line_comments_continue_with_excaped_newline (void)
     size_t input_len = sizeof (input) - 1;
     const char expected_output[] = "line 1 line 2";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -94,7 +94,7 @@ Block_comments_terminated_by_eof_are_stripped (void)
     size_t input_len = sizeof (input) - 1;
     const char expected_output[] = "line 1 ";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -111,7 +111,7 @@ Block_comments_are_not_nested (void)
     size_t input_len = sizeof (input) - 1;
     const char expected_output[] = "line 1  bc3 */";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -128,7 +128,7 @@ Inline_block_comments_are_stripped (void)
     size_t input_len = sizeof (input) - 1;
     const char expected_output[] = "line 1 /";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -145,7 +145,7 @@ Line_comments_supersede_block_comments (void)
     size_t input_len = sizeof (input) - 1;
     const char expected_output[] = "line 1 bc3 */";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -162,7 +162,7 @@ Quoted_strings_are_removed (void)
     size_t input_len = sizeof (input) - 1;
     const char *expected_output = "char *res = ; ;";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -179,7 +179,7 @@ Quoted_strings_with_escaped_quotes_are_removed (void)
     size_t input_len = sizeof (input) - 1;
     const char *expected_output = "char *res = ; ;";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -196,7 +196,7 @@ Quoted_strings_are_not_terminated_by_newline (void)
     size_t input_len = sizeof (input) - 1;
     const char *expected_output = "char *res =  - ;";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -213,7 +213,7 @@ Quoted_strings_are_terminated_by_eof (void)
     size_t input_len = sizeof (input) - 1;
     const char *expected_output = "char *res = ";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -241,7 +241,7 @@ Comments_are_ignored_inside_quoted_strings (void)
     size_t input_len = sizeof (input) - 1;
     const char *expected_output = "char *res = ; ";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
@@ -273,7 +273,7 @@ An_even_number_of_preceding_escapes_does_not_escape_the_delimiter (void)
     size_t input_len = sizeof (input) - 1;
     const char *expected_output = "even: text1 odd: text4 even: line 2 odd: line 4";
 
-    rm_clutter_res res = test_remove_clutter (input, input_len);
+    Rm_clutter_res res = test_remove_clutter (input, input_len);
 
     require (res.res == 0, caller,)
     require_streq (expected_output, res.output,)
