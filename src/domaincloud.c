@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <error.h>
 #include <getopt.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -81,6 +80,46 @@ main (int argc, char *argv[])
 #ifndef NDEBUG
     wfreq_destroy (result_words);
 #endif /* not NDEBUG */
+}
+
+/** Print version information to \a ostr.
+ * \param ostr The file handle where to output to.  Has to be opened for
+ * writing.  */
+void
+print_version (FILE *ostr)
+{
+    fprintf (ostr, "%s (%s)\n", PROJECT_NAME, PROJECT_VERSION);
+    fprintf (ostr, "Copyright %s %s\n", PROJECT_COPY_YEARS, PROJECT_AUTHORS);
+    fprintf (ostr,
+"License GPLv3+: "
+    "GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n"
+"This is free software: you are free to change and redistribute it.\n"
+"There is NO WARRANTY, to the extent permitted by law.\n");
+}
+
+/** Print usage information to \a ostr.
+ * \param ostr The file handle where to output to.  Has to be opened for
+ * writing.  */
+void
+print_usage (FILE *ostr)
+{
+    fprintf (ostr, "Usage: %s %s\n", PROJECT_NAME, "[OPTION]... [FILE]...\n");
+    fprintf (ostr,
+"Generate a word cloud from source files and show the domain as expressed by\n"
+"the code.\n\n");
+
+    fprintf (ostr,
+"  -h, --help          Display this help and exit.\n"
+"  -V, --version       Output version information and exit.\n"
+"  -o FILE, --output=FILE\n"
+"                      Save output int file FILE.\n"
+"  -r, --raw-dump      Similar to -S but print every word the number of times\n"
+"                      it was counted.\n"
+"  -S, --substitute-only\n"
+"                      Remove comments and string literals only and don't\n"
+"                      generate an image.  Every word will be printed on a\n"
+"                      separate line following the word's count.\n"
+"                      If no -o Option is present print to stdout.\n");
 }
 
 /** Parse CLI options and put results into \a options.  Will exit on error.
@@ -156,75 +195,6 @@ parse_cli_options (char *argv[], int argc, struct cli_options *options)
     }
 }
 
-/** Generate a word cloud from \a input_file and save the resulting PNG image to
- * the file \a output_file.  Using the <a
- * href="https://github.com/amueller/word_cloud">`wordcloud_cli.py`</a> program.
- * Exit if this program encounters problems.
- *
- * \param input_file Pass this file name to `wordcloud_cli.py` as `--text`.
- * \param output_file Pass this file name to `wordcloud_cli.py` as
- * `--imagefile`.  */
-static void
-generate_word_cloud (const char *input_file, const char *output_file)
-{
-    char *cmd;
-    // Since wordcloud_cli.py also considers adjacent words as one word, we
-    // shuffle before giving it to the program.
-    int length = asprintf (
-        &cmd, "shuf '%s' | wordcloud_cli.py --text - --imagefile '%s' "
-              "--width=1500 --height=1000",
-        input_file, output_file);
-    if (length < 0)
-        error (EXIT_FAILURE, 0, "Memory allocation error");
-
-    int res = system (cmd);
-    remove (input_file);
-    free (cmd);
-
-    if (res)
-        error (EXIT_FAILURE, 0, "wordcloud_cli.py error!");
-}
-
-/** Print version information to \a ostr.
- * \param ostr The file handle where to output to.  Has to be opened for
- * writing.  */
-void
-print_version (FILE *ostr)
-{
-    fprintf (ostr, "%s (%s)\n", PROJECT_NAME, PROJECT_VERSION);
-    fprintf (ostr, "Copyright %s %s\n", PROJECT_COPY_YEARS, PROJECT_AUTHORS);
-    fprintf (ostr,
-"License GPLv3+: "
-    "GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n"
-"This is free software: you are free to change and redistribute it.\n"
-"There is NO WARRANTY, to the extent permitted by law.\n");
-}
-
-/** Print usage information to \a ostr.
- * \param ostr The file handle where to output to.  Has to be opened for
- * writing.  */
-void
-print_usage (FILE *ostr)
-{
-    fprintf (ostr, "Usage: %s %s\n", PROJECT_NAME, "[OPTION]... [FILE]...\n");
-    fprintf (ostr,
-"Generate a word cloud from source files and show the domain as expressed by\n"
-"the code.\n\n");
-
-    fprintf (ostr,
-"  -h, --help          Display this help and exit.\n"
-"  -V, --version       Output version information and exit.\n"
-"  -o FILE, --output=FILE\n"
-"                      Save output int file FILE.\n"
-"  -r, --raw-dump      Similar to -S but print every word the number of times\n"
-"                      it was counted.\n"
-"  -S, --substitute-only\n"
-"                      Remove comments and string literals only and don't\n"
-"                      generate an image.  Every word will be printed on a\n"
-"                      separate line following the word's count.\n"
-"                      If no -o Option is present print to stdout.\n");
-}
-
 /** Try to open \a input_file and use this together with \a result_words as
  * arguments to \ref count_words.
  *
@@ -253,6 +223,35 @@ process_input_file (
 
     if (!from_stdin)
         fclose (istr);
+}
+
+/** Generate a word cloud from \a input_file and save the resulting PNG image to
+ * the file \a output_file.  Using the <a
+ * href="https://github.com/amueller/word_cloud">`wordcloud_cli.py`</a> program.
+ * Exit if this program encounters problems.
+ *
+ * \param input_file Pass this file name to `wordcloud_cli.py` as `--text`.
+ * \param output_file Pass this file name to `wordcloud_cli.py` as
+ * `--imagefile`.  */
+static void
+generate_word_cloud (const char *input_file, const char *output_file)
+{
+    char *cmd;
+    // Since wordcloud_cli.py also considers adjacent words as one word, we
+    // shuffle before giving it to the program.
+    int length = asprintf (
+        &cmd, "shuf '%s' | wordcloud_cli.py --text - --imagefile '%s' "
+              "--width=1500 --height=1000",
+        input_file, output_file);
+    if (length < 0)
+        error (EXIT_FAILURE, 0, "Memory allocation error");
+
+    int res = system (cmd);
+    remove (input_file);
+    free (cmd);
+
+    if (res)
+        error (EXIT_FAILURE, 0, "wordcloud_cli.py error!");
 }
 
 /* Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>

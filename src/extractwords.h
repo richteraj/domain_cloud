@@ -23,7 +23,7 @@ void print_words_raw (FILE *ostr, struct Word_frequency_s *words);
 /** Defines the possible first letter of a word.
  * \param chr Test against this.
  * \return True if \a chr may start a word.  Else false.  */
-inline bool
+static inline bool
 is_identifier (int chr)
 {
     return isalpha (chr) || chr == '.' || chr == '_';
