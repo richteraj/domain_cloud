@@ -251,7 +251,7 @@ add_word_to_tree (struct Word_frequency_s *result_words)
     struct Word_s **word_in_tree =
         tsearch (new_word, &result_words->tree_root, word_cmp_void);
     if (new_word != *word_in_tree)
-        obstack_free (&result_words->word_stack, new_word);
+        obstack_free (&result_words->word_stack, name);
 
     ++(*word_in_tree)->count;
 }
