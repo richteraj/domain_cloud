@@ -2,6 +2,7 @@
  * Tests around \ref count_words.  */
 
 #include "extractwords.h"
+#include "wordinfo.h"
 #include "cminitests.h"
 
 /** Bundle the results of \ref count_words.  */
@@ -105,6 +106,44 @@ Count_increases_for_the_same_strings ()
     return NULL;
 }
 
+void *
+Long_strings_are_supported ()
+{
+    char *input =
+        "Lorem_ipsum_dolor_sit_amet__consetetur_sadipscing_elitr_sed_diam_nonumy_eirmod_"
+        "tempor_invidunt_ut_labore_et_dolore_magna_aliquyam_erat__"
+        "sed_diam_voluptua__At_"
+        "vero_eos_et_accusam_et_justo_duo_dolores_et_ea_rebum__"
+        "Stet_clita_kasd_gubergren__"
+        "no_sea_takimata_sanctus_est_Lorem_ipsum_dolor_sit_amet_\n";
+    char *expected_output = input;
+
+    Tree_output_res res = create_and_output_words (input);
+
+    require (!res.count_words_res,)
+    require_streq (res.output, expected_output,)
+    free (res.output);
+    return NULL;
+}
+
+void*
+Medium_length_strings_are_supported ()
+{
+    char *medium_len_str = "MediumLength14";
+    require (strlen (medium_len_str) > total_Word_s_string_size - 1,)
+    require (strlen (medium_len_str) < 2 * total_Word_s_string_size - 1,)
+
+    char *input = "Medium_Length_1 Medium_Length_2";
+    char *expected_output = "Medium_Length_1\nMedium_Length_2\n";
+
+    Tree_output_res res = create_and_output_words (input);
+
+    require (!res.count_words_res,)
+    require_streq (res.output, expected_output,)
+    free (res.output);
+    return NULL;
+}
+
 void
 all_tests (void)
 {
@@ -113,6 +152,8 @@ all_tests (void)
         An_already_existing_Word_frequency_s_is_not_initialized_again,)
     CMT_TEST_CASE (Symbols_except_dot_do_not_count_as_words,)
     CMT_TEST_CASE (Count_increases_for_the_same_strings,)
+    CMT_TEST_CASE (Long_strings_are_supported,)
+    CMT_TEST_CASE (Medium_length_strings_are_supported,)
 }
 
 CMT_RUN_TESTS (all_tests)

@@ -9,6 +9,7 @@ foreach (test_source IN LISTS srcs)
 endforeach (test_source)
 
 set_property (TEST test_domaincloud PROPERTY WILL_FAIL 1)
+target_compile_features (test_word_frequency PRIVATE c_static_assert)
 
 file (GLOB srcs test_*.sh)
 foreach (test_sh_script IN LISTS srcs)

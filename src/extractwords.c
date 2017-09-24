@@ -108,7 +108,8 @@ wfreq_destroy (struct Word_frequency_s *words)
     free (words);
 }
 
-static void add_word_to_tree (struct Word_frequency_s *result_words);
+static void add_word_to_tree (
+    struct Word_frequency_s *result_words, char *buffer, int buffer_len);
 
 /** Simple parse state for a word.  */
 enum Word_position {Word_begin, Word_end, Not_word};
@@ -124,10 +125,23 @@ enum Word_position {Word_begin, Word_end, Not_word};
 int
 count_words (FILE *istr, struct Word_frequency_s *result_words)
 {
+    enum {word_buf_len = 2 * total_Word_s_string_size};
+    char word_buf_raw[word_buf_len];
+    int word_buf_pos = 0;
+    bool word_completely_in_buf = true;
+
     enum Word_position in_word = Not_word;
 
     while (!feof (istr) && !ferror (istr))
     {
+        if (word_buf_pos >= word_buf_len)
+        {
+            obstack_grow (
+                &result_words->word_stack, word_buf_raw, word_buf_len);
+            word_buf_pos = 0;
+            word_completely_in_buf = false;
+        }
+
         int cur = getc (istr);
 
         if (cur == '/')
@@ -139,12 +153,12 @@ count_words (FILE *istr, struct Word_frequency_s *result_words)
         else if (isdigit (cur))
         {
             if (in_word == Word_begin)
-                obstack_1grow (&result_words->word_stack, cur);
+                word_buf_raw[word_buf_pos++] = cur;
         }
         else if (is_identifier (cur))
         {
             in_word = Word_begin;
-            obstack_1grow (&result_words->word_stack, cur);
+            word_buf_raw[word_buf_pos++] = cur;
         }
 
         if (!isdigit (cur) && !is_identifier (cur))
@@ -153,8 +167,20 @@ count_words (FILE *istr, struct Word_frequency_s *result_words)
 
         if (in_word == Word_end)
         {
-            add_word_to_tree (result_words);
+            if (word_completely_in_buf && word_buf_pos + 1 < word_buf_len)
+            {
+                word_buf_raw[word_buf_pos++] = '\0';
+                add_word_to_tree (result_words, word_buf_raw, word_buf_pos);
+            }
+            else
+            {
+                obstack_grow0 (
+                    &result_words->word_stack, word_buf_raw, word_buf_pos);
+                add_word_to_tree (result_words, NULL, -1);
+            }
+            word_buf_pos = 0;
             in_word = Not_word;
+            word_completely_in_buf = true;
         }
     }
 
@@ -337,22 +363,35 @@ static comparison_fn_t word_cmp_void = (comparison_fn_t) word_compare;
  *    \li the count of the word in the tree is incremented.
  * */
 static void
-add_word_to_tree (struct Word_frequency_s *result_words)
+add_word_to_tree (
+    struct Word_frequency_s *result_words, char *buffer, int buffer_len)
 {
-    int name_len = obstack_object_size (&result_words->word_stack);
-    obstack_1grow (&result_words->word_stack, '\0');
-    char *name = obstack_finish (&result_words->word_stack);
+    bool have_buffer = buffer != NULL;
+    int const name_len =
+        have_buffer ? buffer_len
+                    : (int) obstack_object_size (&result_words->word_stack);
+    char *name =
+        have_buffer ? buffer : obstack_finish (&result_words->word_stack);
 
     struct Word_s new_word = {.count = 0, .name = name};
 
     struct Word_s **word_in_tree =
         tfind (&new_word, &result_words->tree_root, word_cmp_void);
+
     if (word_in_tree)
-        obstack_free (&result_words->word_stack, name);
+    {
+        if (!have_buffer)
+            obstack_free (&result_words->word_stack, name);
+    }
     else
     {
-        if (word_store_string (&new_word, name, name_len))
+        bool have_short_string =
+            word_store_string (&new_word, name, name_len - 1);
+        if (!have_buffer && have_short_string)
             obstack_free (&result_words->word_stack, name);
+        else if (have_buffer && !have_short_string)
+            new_word.name =
+                obstack_copy (&result_words->word_stack, buffer, buffer_len);
 
         struct Word_s *add_word = obstack_copy (
             &result_words->word_stack, &new_word, sizeof (struct Word_s));
