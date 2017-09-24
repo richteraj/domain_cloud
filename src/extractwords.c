@@ -69,6 +69,7 @@ struct Word_frequency_s
     void *tree_root;
     /** All strings and \e Word_s instances are put there.  */
     struct obstack word_stack;
+    struct obstack long_string_stack;
 };
 
 static void _tree_free_fn_nop (void *node);
@@ -90,6 +91,8 @@ wfreq_init (struct Word_frequency_s **words)
         return ENOMEM;
     else if (!obstack_init (&(*words)->word_stack))
         return ENOMEM;
+    else if (!obstack_init (&(*words)->long_string_stack))
+        return ENOMEM;
     else
         return 0;
 }
@@ -105,6 +108,7 @@ wfreq_destroy (struct Word_frequency_s *words)
 
     tdestroy (words->tree_root, _tree_free_fn_nop);
     obstack_free (&words->word_stack, NULL);
+    obstack_free (&words->long_string_stack, NULL);
     free (words);
 }
 
@@ -137,7 +141,7 @@ count_words (FILE *istr, struct Word_frequency_s *result_words)
         if (word_buf_pos >= word_buf_len)
         {
             obstack_grow (
-                &result_words->word_stack, word_buf_raw, word_buf_len);
+                &result_words->long_string_stack, word_buf_raw, word_buf_len);
             word_buf_pos = 0;
             word_completely_in_buf = false;
         }
@@ -175,7 +179,8 @@ count_words (FILE *istr, struct Word_frequency_s *result_words)
             else
             {
                 obstack_grow0 (
-                    &result_words->word_stack, word_buf_raw, word_buf_pos);
+                    &result_words->long_string_stack, word_buf_raw,
+                    word_buf_pos);
                 add_word_to_tree (result_words, NULL, -1);
             }
             word_buf_pos = 0;
@@ -366,37 +371,38 @@ static void
 add_word_to_tree (
     struct Word_frequency_s *result_words, char *buffer, int buffer_len)
 {
-    bool have_buffer = buffer != NULL;
-    int const name_len =
-        have_buffer ? buffer_len
-                    : (int) obstack_object_size (&result_words->word_stack);
-    char *name =
-        have_buffer ? buffer : obstack_finish (&result_words->word_stack);
+    struct obstack *long_string_stack = &result_words->long_string_stack;
+    struct obstack *word_stack = &result_words->word_stack;
 
-    struct Word_s new_word = {.count = 0, .name = name};
+    bool have_buffer = buffer != NULL;
+    int const name_len = have_buffer
+        ? buffer_len
+        : (int) obstack_object_size (long_string_stack);
+    char *name = have_buffer ? buffer : obstack_finish (long_string_stack);
+
+    struct Word_s *add_word =
+        obstack_alloc (word_stack, sizeof (struct Word_s));
+    add_word->short_name[0] = '\0';
+    add_word->name = name;
 
     struct Word_s **word_in_tree =
-        tfind (&new_word, &result_words->tree_root, word_cmp_void);
+        tsearch (add_word, &result_words->tree_root, word_cmp_void);
 
-    if (word_in_tree)
+    if (*word_in_tree != add_word)
     {
         if (!have_buffer)
-            obstack_free (&result_words->word_stack, name);
+            obstack_free (long_string_stack, name);
+        obstack_free (word_stack, add_word);
     }
     else
     {
         bool have_short_string =
-            word_store_string (&new_word, name, name_len - 1);
+            word_store_string (add_word, name, name_len - 1);
         if (!have_buffer && have_short_string)
-            obstack_free (&result_words->word_stack, name);
+            obstack_free (long_string_stack, name);
         else if (have_buffer && !have_short_string)
-            new_word.name =
-                obstack_copy (&result_words->word_stack, buffer, buffer_len);
-
-        struct Word_s *add_word = obstack_copy (
-            &result_words->word_stack, &new_word, sizeof (struct Word_s));
-        word_in_tree =
-            tsearch (add_word, &result_words->tree_root, word_cmp_void);
+            add_word->name =
+                obstack_copy (long_string_stack, buffer, buffer_len);
     }
 
     ++(*word_in_tree)->count;
