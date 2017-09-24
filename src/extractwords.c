@@ -194,8 +194,10 @@ wfreq_init (struct Word_frequency_s **words)
         return ENOMEM;
     else if (!obstack_init (&(*words)->word_stack))
         return ENOMEM;
-    else
-        return 0;
+
+    obstack_alignment_mask (&(*words)->word_stack) = (sizeof (void *) - 0x1);
+
+    return 0;
 }
 
 #pragma GCC diagnostic push
