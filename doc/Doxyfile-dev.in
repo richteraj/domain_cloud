@@ -13,6 +13,8 @@ HIDE_IN_BODY_DOCS      = YES
 INTERNAL_DOCS          = YES
 SORT_MEMBER_DOCS       = NO
 
+MAX_INITIALIZER_LINES  = 30
+
 # `QUIET = NO` will mix stdout and stderr, which confuses the quick-fix list
 QUIET                  = YES
 WARNINGS               = YES
