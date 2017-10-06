@@ -20,15 +20,13 @@ include (CTest)
 set (CMAKE_C_STANDARD 99)
 set (CMAKE_C_STANDARD_REQUIRED ON)
 
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -O3")
 if (CMAKE_C_COMPILER_ID STREQUAL Clang)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-        -Wno-gnu-zero-variadic-macro-arguments -Wno-missing-prototypes \
-        -Wno-variadic-macros")
-    set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O2 -Weverything -Wno-padded")
+    add_compile_options (-Wno-missing-prototypes
+        $<$<CONFIG:Debug>:-O2>
+        $<$<CONFIG:Debug>:-Weverything> $<$<CONFIG:Debug>:-Wno-padded>)
 elseif (CMAKE_C_COMPILER_ID STREQUAL GNU)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-variadic-macros")
-    set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wformat=2 -Og")
+    add_compile_options (
+        $<$<CONFIG:Debug>:-Og> $<$<CONFIG:Debug>:-Wformat=2>)
 endif ()
 set (CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
@@ -41,13 +39,14 @@ add_subdirectory (${doc_DIR})
 # Summary
 message ("\n-- Summary:")
 message ("Project ${PROJECT_NAME} (${PROJECT_VERSION}):")
-message ("  src:   ${PROJECT_SOURCE_DIR}")
-message ("  build: ${PROJECT_BINARY_DIR}")
-message ("  build type: ${CMAKE_BUILD_TYPE}")
-message ("C compiler: ${CMAKE_C_COMPILER}")
-message ("  Flags:         ${CMAKE_C_FLAGS}")
-message ("  Flags (Debug): ${CMAKE_C_FLAGS_DEBUG}")
-message ("  -D:            ${COMPILE_DEFINITIONS}")
+message ("  src:           ${PROJECT_SOURCE_DIR}")
+message ("  build:         ${PROJECT_BINARY_DIR}")
+message ("  build type:    ${CMAKE_BUILD_TYPE}")
+message ("C compiler:      ${CMAKE_C_COMPILER_ID} (${CMAKE_C_COMPILER})")
+get_property (compile_flags DIRECTORY PROPERTY COMPILE_OPTIONS)
+message ("  Flags:         ${compile_flags}")
+get_property (compile_defs DIRECTORY PROPERTY COMPILE_DEFINITIONS)
+message ("  -D:            ${compile_defs}")
 
 # CMakeLists.txt -- global project configuration
 # Copyright 2017 A. Johannes RICHTER <albrechtjohannes.richter@gmail.com>
