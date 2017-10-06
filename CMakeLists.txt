@@ -20,6 +20,7 @@ include (CTest)
 set (CMAKE_C_STANDARD 99)
 set (CMAKE_C_STANDARD_REQUIRED ON)
 
+add_compile_options (-Wall -Wextra -Wpedantic -O3)
 if (CMAKE_C_COMPILER_ID STREQUAL Clang)
     add_compile_options (-Wno-missing-prototypes
         $<$<CONFIG:Debug>:-O2>
