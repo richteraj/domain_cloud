@@ -226,8 +226,9 @@ process_input_file (
 }
 
 /** Generate a word cloud from \a input_file and save the resulting PNG image to
- * the file \a output_file.  Using the <a
- * href="https://github.com/amueller/word_cloud">`wordcloud_cli.py`</a> program.
+ * the file \a output_file.  Using the
+ * <a href="https://github.com/amueller/word_cloud">`wordcloud_cli.py`</a>
+ * program.
  * Exit if this program encounters problems.
  *
  * \param input_file Pass this file name to `wordcloud_cli.py` as `--text`.

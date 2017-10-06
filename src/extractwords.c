@@ -113,7 +113,15 @@ wfreq_destroy (struct Word_frequency_s *words)
 static void add_word_to_tree (struct Word_frequency_s *result_words);
 
 /** Simple parse state for a word.  */
-enum Word_position {Word_begin, Word_end, Not_word};
+enum Word_position
+{
+    /** Currently parsing a valid word.  */
+    Word_inside,
+    /** Finished parsing a word, but did not yet save it.  */
+    Word_end,
+    /** No word is currently being parsed nor was finished.  */
+    Not_word
+};
 
 /** Parse words from the stream \a istr, count their occurrence and add the
  * results to \a result_words.  Comments and string literals are ignored.
@@ -140,17 +148,17 @@ count_words (FILE *istr, struct Word_frequency_s *result_words)
             skip_delimiter_escape_aware ("'", istr);
         else if (isdigit (cur))
         {
-            if (in_word == Word_begin)
+            if (in_word == Word_inside)
                 obstack_1grow (&result_words->word_stack, cur);
         }
         else if (is_identifier (cur))
         {
-            in_word = Word_begin;
+            in_word = Word_inside;
             obstack_1grow (&result_words->word_stack, cur);
         }
 
         if (!isdigit (cur) && !is_identifier (cur))
-            if (in_word == Word_begin)
+            if (in_word == Word_inside)
                 in_word = Word_end;
 
         if (in_word == Word_end)
@@ -364,7 +372,7 @@ add_word_to_tree (struct Word_frequency_s *result_words)
  *
  * \warning Writes to the global \ref _current_ostr stream.
  *
- * \param word The tree node pointing to the current word.
+ * \param word_node The tree node pointing to the current word.
  * \param which The `VISIT` order.
  * \param depth Current tree depth.  Not used.  */
 static void
