@@ -23,7 +23,9 @@ set (CMAKE_C_STANDARD_REQUIRED ON)
 if (CMAKE_C_COMPILER_ID STREQUAL Clang)
     add_compile_options (-Wno-missing-prototypes
         $<$<CONFIG:Debug>:-O2>
-        $<$<CONFIG:Debug>:-Weverything> $<$<CONFIG:Debug>:-Wno-padded>)
+        $<$<CONFIG:Debug>:-Weverything>
+        $<$<CONFIG:Debug>:-Wno-padded>
+        $<$<CONFIG:Debug>:-Wno-disabled-macro-expansion>)
 elseif (CMAKE_C_COMPILER_ID STREQUAL GNU)
     add_compile_options (
         $<$<CONFIG:Debug>:-Og> $<$<CONFIG:Debug>:-Wformat=2>)
