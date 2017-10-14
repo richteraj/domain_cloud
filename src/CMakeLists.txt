@@ -14,6 +14,8 @@ target_compile_definitions (domaincloud
 add_library (domaincloudlib STATIC "extractwords.c" "wordinfo.c")
 target_compile_definitions (domaincloudlib
     PRIVATE "-D_GNU_SOURCE")
+target_include_directories (domaincloudlib
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 install(
     TARGETS domaincloud
